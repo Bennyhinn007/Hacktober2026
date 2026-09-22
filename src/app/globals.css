@@ -1,26 +1,145 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Mokoto';
+  src: url('/fonts/mokoto.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-mokoto {
+  font-family: 'Mokoto', var(--font-geist-sans), monospace, sans-serif;
+  letter-spacing: 0.04em;
+}
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #0f172a;
+  --surface: #f8fafc;
+  --surface-alt: #f1f5f9;
+  --border-light: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --primary-navy: #1e3a5f;
+  --primary-hover: #152942;
+  --cyber-teal: #0d9488;
+  --cyber-emerald: #059669;
+  --cyber-accent: #2563eb;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --status-verified-bg: #ecfdf5;
+  --status-verified-text: #065f46;
+  --status-verified-border: #a7f3d0;
+  --status-pending-bg: #fffbeb;
+  --status-pending-text: #92400e;
+  --status-pending-border: #fde68a;
+  --status-rejected-bg: #fef2f2;
+  --status-rejected-text: #991b1b;
+  --status-rejected-border: #fecaca;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Light academic cyber grid pattern overlay */
+.bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(226, 232, 240, 0.7) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.7) 1px, transparent 1px);
+}
+
+.bg-cyber-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(13, 148, 136, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(13, 148, 136, 0.06) 1px, transparent 1px);
+}
+
+.bg-dots-pattern {
+  background-size: 20px 20px;
+  background-image: radial-gradient(rgba(203, 213, 225, 0.8) 1px, transparent 1px);
+}
+
+/* Futuristic Cyber Corner Bracket Decorator for cards */
+.cyber-corner {
+  position: relative;
+}
+.cyber-corner::before,
+.cyber-corner::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: rgba(13, 148, 136, 0.4);
+  pointer-events: none;
+}
+.cyber-corner::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+.cyber-corner::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+/* Card glassmorphic highlight for light theme */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+}
+
+.card-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(13, 148, 136, 0.08);
+  border-color: #99f6e4;
+}
+
+/* Custom scrollbar for data tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print Styles for badges and confirmation vouchers */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-badge {
+    border: 2px solid #0f172a !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
 }
