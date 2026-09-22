@@ -17,6 +17,21 @@ async function runE2EServerTests() {
 
   // 2. Test Admin Authentication & Cookie Session
   console.log('\n2. Testing Admin Authentication:');
+  // Verify Benny Hinn Super Admin login
+  const bennyLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: 'bennyhinn.icb@gmail.com',
+      password: 'ICB@2005',
+    }),
+  });
+  assert.strictEqual(bennyLoginRes.status, 200, 'Benny Hinn Super Admin login must succeed (HTTP 200)');
+  const bennyData = await bennyLoginRes.json();
+  assert.strictEqual(bennyData.user.role, 'SUPER_ADMIN', 'Benny Hinn role must be SUPER_ADMIN');
+  console.log(`  ✓ Authenticated Super Admin: ${bennyData.user.fullName} (${bennyData.user.email}) [${bennyData.user.role}]`);
+
+  // Default admin login
   const loginRes = await fetch(`${baseUrl}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

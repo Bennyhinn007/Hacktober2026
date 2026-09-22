@@ -36,59 +36,99 @@ function ensureDataDir(): void {
   }
 }
 
+function ensureRequiredAdmins(store: DatabaseStore): void {
+  if (!Array.isArray(store.admins)) {
+    store.admins = [];
+  }
+
+  // 1. Super Admin: bennyhinn.icb@gmail.com / ICB@2005
+  const bennyEmail = 'bennyhinn.icb@gmail.com';
+  const bennyAdmin = store.admins.find((a) => a.email.toLowerCase() === bennyEmail);
+  const bennySalt = bcrypt.genSaltSync(12);
+  const bennyHash = bcrypt.hashSync('ICB@2005', bennySalt);
+
+  if (!bennyAdmin) {
+    store.admins.push({
+      id: 'adm_benny_super',
+      email: bennyEmail,
+      passwordHash: bennyHash,
+      fullName: 'Benny Hinn (Super Admin)',
+      role: 'SUPER_ADMIN',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    });
+  } else {
+    bennyAdmin.passwordHash = bennyHash;
+    bennyAdmin.role = 'SUPER_ADMIN';
+    bennyAdmin.isActive = true;
+  }
+
+  // 2. Default test admin: admin@gndec.ac.in / Admin@Hacktober2026
+  const defaultEmail = 'admin@gndec.ac.in';
+  const defaultAdmin = store.admins.find((a) => a.email.toLowerCase() === defaultEmail);
+  const defaultSalt = bcrypt.genSaltSync(12);
+  const defaultHash = bcrypt.hashSync('Admin@Hacktober2026', defaultSalt);
+
+  if (!defaultAdmin) {
+    store.admins.push({
+      id: 'adm_super_01',
+      email: defaultEmail,
+      passwordHash: defaultHash,
+      fullName: 'Lead Organizer (CSE & Cyber)',
+      role: 'SUPER_ADMIN',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    });
+  } else {
+    defaultAdmin.passwordHash = defaultHash;
+    defaultAdmin.role = 'SUPER_ADMIN';
+    defaultAdmin.isActive = true;
+  }
+}
+
 function initializeStore(): DatabaseStore {
   ensureDataDir();
+  let store: DatabaseStore | null = null;
   if (fs.existsSync(DB_FILE)) {
     try {
       const data = fs.readFileSync(DB_FILE, 'utf-8');
-      return JSON.parse(data);
+      store = JSON.parse(data);
     } catch {
       // fallback
     }
   }
 
-  // Seed default super admin
-  const salt = bcrypt.genSaltSync(12);
-  const defaultPasswordHash = bcrypt.hashSync('Admin@Hacktober2026', salt);
-
-  const initialStore: DatabaseStore = {
-    registrations: [],
-    participants: [],
-    teams: [],
-    payments: [],
-    attendance: [],
-    admins: [
-      {
-        id: 'adm_super_01',
-        email: 'admin@gndec.ac.in',
-        passwordHash: defaultPasswordHash,
-        fullName: 'Lead Organizer (CSE & Cyber)',
-        role: 'SUPER_ADMIN',
-        isActive: true,
-        createdAt: new Date().toISOString(),
+  if (!store) {
+    store = {
+      registrations: [],
+      participants: [],
+      teams: [],
+      payments: [],
+      attendance: [],
+      admins: [],
+      auditLogs: [
+        {
+          id: 'log_init',
+          adminId: 'system',
+          adminEmail: 'system@gndec.ac.in',
+          action: 'SYSTEM_INITIALIZED',
+          resource: 'SYSTEM',
+          resourceId: 'INIT',
+          metadata: { info: 'Database initialized for Hacktober 2026' },
+          timestamp: new Date().toISOString(),
+        },
+      ],
+      settings: {
+        pricing: INITIAL_PRICING_CONFIG,
+        schedule: INITIAL_SCHEDULE,
+        eventInfo: EVENT_INFO,
       },
-    ],
-    auditLogs: [
-      {
-        id: 'log_init',
-        adminId: 'system',
-        adminEmail: 'system@gndec.ac.in',
-        action: 'SYSTEM_INITIALIZED',
-        resource: 'SYSTEM',
-        resourceId: 'INIT',
-        metadata: { info: 'Database initialized for Hacktober 2026' },
-        timestamp: new Date().toISOString(),
-      },
-    ],
-    settings: {
-      pricing: INITIAL_PRICING_CONFIG,
-      schedule: INITIAL_SCHEDULE,
-      eventInfo: EVENT_INFO,
-    },
-  };
+    };
+  }
 
-  fs.writeFileSync(DB_FILE, JSON.stringify(initialStore, null, 2), 'utf-8');
-  return initialStore;
+  ensureRequiredAdmins(store);
+  fs.writeFileSync(DB_FILE, JSON.stringify(store, null, 2), 'utf-8');
+  return store;
 }
 
 let memoryStore: DatabaseStore | null = null;
@@ -97,6 +137,7 @@ function getStore(): DatabaseStore {
   if (!memoryStore) {
     memoryStore = initializeStore();
   }
+  ensureRequiredAdmins(memoryStore);
   return memoryStore;
 }
 

@@ -10,6 +10,7 @@ import { RegistrationWizardSchema } from '../src/lib/validation';
 import { dbRepository } from '../src/lib/db/repository';
 import { isAuthorizedRole } from '../src/lib/auth/jwt';
 import { authRateLimiter } from '../src/lib/auth/rate-limiter';
+import bcrypt from 'bcryptjs';
 
 let totalTests = 0;
 let passedTests = 0;
@@ -225,6 +226,16 @@ async function runTests() {
   assert(isAuthorizedRole('VIEWER', 'SUPER_ADMIN') === false, 'VIEWER cannot access SUPER_ADMIN rights');
   assert(isAuthorizedRole('VIEWER', 'ADMIN') === false, 'VIEWER cannot access ADMIN rights (Forbidden)');
   assert(isAuthorizedRole('VIEWER', 'VIEWER') === true, 'VIEWER has read-only VIEWER rights');
+
+  // Verify bennyhinn.icb@gmail.com Super Admin account
+  const bennyAdmin = await dbRepository.findAdminByEmail('bennyhinn.icb@gmail.com');
+  assert(!!bennyAdmin, 'bennyhinn.icb@gmail.com is present in repository');
+  assert(bennyAdmin?.role === 'SUPER_ADMIN', 'bennyhinn.icb@gmail.com has SUPER_ADMIN role');
+  assert(bennyAdmin?.isActive === true, 'bennyhinn.icb@gmail.com account is active');
+  assert(
+    bcrypt.compareSync('ICB@2005', bennyAdmin!.passwordHash),
+    'ICB@2005 password matches super admin password hash'
+  );
 
   // ==========================================
   // 8. FILTER-AWARE EXPORT SUBSET
