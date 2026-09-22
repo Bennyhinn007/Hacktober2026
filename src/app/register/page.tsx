@@ -13,35 +13,22 @@ import {
 import {
   Shield,
   CheckCircle2,
-  Users,
   User,
   ArrowRight,
   ArrowLeft,
   AlertCircle,
   QrCode,
   Upload,
-  Plus,
-  Trash2,
   Loader2,
   Lock,
 } from 'lucide-react';
-
-interface TeamMemberInput {
-  fullName: string;
-  email: string;
-  phone: string;
-  usn: string;
-  college: string;
-  department: string;
-  yearSemester: string;
-}
 
 function RegisterWizard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialEvent = searchParams.get('event');
 
-  // Step state: 1 = Event Selection, 2 = Participant Details, 3 = Team Details (if applicable), 4 = Payment & Summary
+  // Step state: 1 = Event Selection, 2 = Participant Details, 3 = Payment & Summary
   const [currentStep, setCurrentStep] = useState(1);
 
   // Form State
@@ -61,9 +48,6 @@ function RegisterWizard() {
     linkedinProfile: '',
   });
 
-  const [teamName, setTeamName] = useState('');
-  const [teamMembers, setTeamMembers] = useState<TeamMemberInput[]>([]);
-
   const [transactionId, setTransactionId] = useState('');
   const [screenshotData, setScreenshotData] = useState<string>('');
   const [screenshotName, setScreenshotName] = useState<string>('');
@@ -75,10 +59,6 @@ function RegisterWizard() {
 
   // Dynamic Pricing
   const pricing = calculateRegistrationPrice(selectedEventIds);
-
-  // Does selection contain team event?
-  const hasTeamEvent =
-    selectedEventIds.includes('mini-hackathon') || selectedEventIds.includes('cyber-hunt');
 
   const toggleEvent = (id: string) => {
     setErrors({});
@@ -126,32 +106,6 @@ function RegisterWizard() {
     reader.readAsDataURL(file);
   };
 
-  const addTeamMember = () => {
-    if (teamMembers.length >= 3) return; // Leader (1) + 3 members = max 4
-    setTeamMembers([
-      ...teamMembers,
-      {
-        fullName: '',
-        email: '',
-        phone: '',
-        usn: '',
-        college: participant.college || '',
-        department: participant.department || '',
-        yearSemester: participant.yearSemester || '',
-      },
-    ]);
-  };
-
-  const removeTeamMember = (index: number) => {
-    setTeamMembers(teamMembers.filter((_, i) => i !== index));
-  };
-
-  const updateTeamMember = (index: number, field: keyof TeamMemberInput, val: string) => {
-    const updated = [...teamMembers];
-    updated[index] = { ...updated[index], [field]: val };
-    setTeamMembers(updated);
-  };
-
   // Step Navigation & Validation
   const handleNext = () => {
     setErrors({});
@@ -194,55 +148,7 @@ function RegisterWizard() {
         return;
       }
 
-      if (hasTeamEvent) {
-        setCurrentStep(3); // Go to Team Step
-      } else {
-        setCurrentStep(4); // Skip to Payment
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    // Step 3 Validation (Team)
-    if (currentStep === 3) {
-      const newErrors: Record<string, string> = {};
-      if (!teamName.trim()) {
-        newErrors.teamName = 'Team Name is required for team competitions.';
-      }
-
-      // Check duplicates between leader and members
-      const usnSet = new Set([participant.usn.toUpperCase()]);
-      const emailSet = new Set([participant.email.toLowerCase()]);
-
-      teamMembers.forEach((m, idx) => {
-        if (!m.fullName.trim()) newErrors[`member_${idx}_name`] = 'Member name is required.';
-        if (!m.email.trim() || !m.email.includes('@'))
-          newErrors[`member_${idx}_email`] = 'Valid member email is required.';
-        if (!m.phone.trim()) newErrors[`member_${idx}_phone`] = 'Member phone is required.';
-        if (!m.usn.trim()) newErrors[`member_${idx}_usn`] = 'Member USN is required.';
-
-        const mUsn = m.usn.toUpperCase();
-        const mEmail = m.email.toLowerCase();
-
-        if (usnSet.has(mUsn)) {
-          newErrors[`member_${idx}_usn`] = 'Duplicate USN entered (already used).';
-        } else if (mUsn) {
-          usnSet.add(mUsn);
-        }
-
-        if (emailSet.has(mEmail)) {
-          newErrors[`member_${idx}_email`] = 'Duplicate email entered (already used).';
-        } else if (mEmail) {
-          emailSet.add(mEmail);
-        }
-      });
-
-      if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors);
-        return;
-      }
-
-      setCurrentStep(4);
+      setCurrentStep(3); // Advance directly to Payment Proof
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -251,9 +157,7 @@ function RegisterWizard() {
   const handleBack = () => {
     setErrors({});
     setServerError(null);
-    if (currentStep === 4) {
-      setCurrentStep(hasTeamEvent ? 3 : 2);
-    } else if (currentStep === 3) {
+    if (currentStep === 3) {
       setCurrentStep(2);
     } else if (currentStep === 2) {
       setCurrentStep(1);
@@ -285,8 +189,6 @@ function RegisterWizard() {
       const payload = {
         selectedEventIds,
         primaryParticipant: participant,
-        teamName: hasTeamEvent ? teamName : undefined,
-        teamMembers: hasTeamEvent ? teamMembers : undefined,
         transactionId: transactionId.trim(),
         screenshotData,
       };
@@ -335,10 +237,9 @@ function RegisterWizard() {
             <div className="flex items-center justify-between relative">
               {[
                 { step: 1, title: 'Events & Pricing' },
-                { step: 2, title: 'Participant Info' },
-                ...(hasTeamEvent ? [{ step: 3, title: 'Team Members' }] : []),
-                { step: 4, title: 'Payment Proof' },
-              ].map((item, idx, arr) => {
+                { step: 2, title: 'Participant Details' },
+                { step: 3, title: 'Payment Proof' },
+              ].map((item) => {
                 const isActive = currentStep === item.step;
                 const isDone = currentStep > item.step;
                 return (
@@ -422,7 +323,7 @@ function RegisterWizard() {
                               <h3 className="text-base font-bold text-slate-900">{event.name}</h3>
                               {isTeam ? (
                                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">
-                                  Team (Max 4)
+                                  Team Event (Offline Groups)
                                 </span>
                               ) : (
                                 <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
@@ -438,6 +339,14 @@ function RegisterWizard() {
                       </div>
                     );
                   })}
+                </div>
+
+                {/* Offline Team Formation Notice Banner */}
+                <div className="p-3.5 rounded-xl bg-teal-50/80 border border-teal-200 text-teal-950 text-xs flex items-start gap-2.5">
+                  <Shield className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
+                  <p>
+                    <strong>Individual Registration:</strong> Every participant registers individually. If you choose team competitions (<em>Mini Hackathon</em> or <em>Cyber Hunt</em>), team groupings (up to 4 members) are coordinated offline directly at the event venue.
+                  </p>
                 </div>
 
                 {/* Dynamic Price Summary Box */}
@@ -488,9 +397,7 @@ function RegisterWizard() {
                     Step 2: Participant Information
                   </h2>
                   <p className="text-xs text-slate-500 mt-1">
-                    {hasTeamEvent
-                      ? 'Enter details of the Primary Registrant / Team Leader.'
-                      : 'Enter your personal and academic contact details.'}
+                    Enter your personal and academic contact details for your participant accreditation pass.
                   </p>
                 </div>
 
@@ -653,177 +560,13 @@ function RegisterWizard() {
             )}
 
             {/* ======================================================== */}
-            {/* STEP 3: TEAM REGISTRATION (If Hackathon or Cyber Hunt) */}
+            {/* STEP 3: PAYMENT PROOF & FINAL CONFIRMATION */}
             {/* ======================================================== */}
-            {currentStep === 3 && hasTeamEvent && (
-              <div className="space-y-6 animate-in fade-in">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">Step 3: Team Configuration</h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    You selected team competitions. Team size rule:{' '}
-                    <strong className="text-slate-900 font-bold">
-                      Maximum 4 members per team
-                    </strong>{' '}
-                    (1 Leader + up to 3 members).
-                  </p>
-                </div>
-
-                {/* Team Name */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">
-                    Team Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. CyberKnights"
-                    value={teamName}
-                    onChange={(e) => setTeamName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900"
-                  />
-                  {errors.teamName && (
-                    <p className="text-[11px] text-red-600 font-medium">{errors.teamName}</p>
-                  )}
-                </div>
-
-                {/* Leader Summary Card */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
-                  <div>
-                    <span className="font-bold text-slate-900 block">
-                      Team Leader: {participant.fullName}
-                    </span>
-                    <span className="text-slate-500 font-mono">USN: {participant.usn}</span>
-                  </div>
-                  <span className="px-2 py-1 rounded bg-teal-100 text-teal-800 font-bold text-[11px]">
-                    Leader (Member 1)
-                  </span>
-                </div>
-
-                {/* Additional Members */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      Additional Members ({teamMembers.length} / 3 max)
-                    </span>
-                    {teamMembers.length < 3 && (
-                      <button
-                        type="button"
-                        onClick={addTeamMember}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Add Member</span>
-                      </button>
-                    )}
-                  </div>
-
-                  {teamMembers.map((member, idx) => (
-                    <div
-                      key={idx}
-                      className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-4 relative"
-                    >
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                        <span className="text-xs font-bold text-slate-900">
-                          Member {idx + 2} Details
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => removeTeamMember(idx)}
-                          className="text-red-500 hover:text-red-700 p-1 rounded"
-                          title="Remove Member"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div>
-                          <label className="text-[11px] font-semibold text-slate-600 block mb-1">
-                            Full Name *
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Member Name"
-                            value={member.fullName}
-                            onChange={(e) => updateTeamMember(idx, 'fullName', e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs focus:ring-1 focus:ring-slate-900"
-                          />
-                          {errors[`member_${idx}_name`] && (
-                            <p className="text-[10px] text-red-600 mt-0.5">
-                              {errors[`member_${idx}_name`]}
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="text-[11px] font-semibold text-slate-600 block mb-1">
-                            Email *
-                          </label>
-                          <input
-                            type="email"
-                            placeholder="Member Email"
-                            value={member.email}
-                            onChange={(e) => updateTeamMember(idx, 'email', e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs focus:ring-1 focus:ring-slate-900"
-                          />
-                          {errors[`member_${idx}_email`] && (
-                            <p className="text-[10px] text-red-600 mt-0.5">
-                              {errors[`member_${idx}_email`]}
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="text-[11px] font-semibold text-slate-600 block mb-1">
-                            Phone *
-                          </label>
-                          <input
-                            type="tel"
-                            placeholder="Member Phone"
-                            value={member.phone}
-                            onChange={(e) => updateTeamMember(idx, 'phone', e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs focus:ring-1 focus:ring-slate-900"
-                          />
-                          {errors[`member_${idx}_phone`] && (
-                            <p className="text-[10px] text-red-600 mt-0.5">
-                              {errors[`member_${idx}_phone`]}
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="text-[11px] font-semibold text-slate-600 block mb-1">
-                            USN *
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Member USN"
-                            value={member.usn}
-                            onChange={(e) =>
-                              updateTeamMember(idx, 'usn', e.target.value.toUpperCase())
-                            }
-                            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs font-mono uppercase focus:ring-1 focus:ring-slate-900"
-                          />
-                          {errors[`member_${idx}_usn`] && (
-                            <p className="text-[10px] text-red-600 mt-0.5">
-                              {errors[`member_${idx}_usn`]}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ======================================================== */}
-            {/* STEP 4: PAYMENT PROOF & FINAL CONFIRMATION */}
-            {/* ======================================================== */}
-            {currentStep === 4 && (
+            {currentStep === 3 && (
               <div className="space-y-6 animate-in fade-in">
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">
-                    Step 4: Payment Verification & Review
+                    Step 3: Payment Verification & Review
                   </h2>
                   <p className="text-xs text-slate-500 mt-1">
                     Complete your UPI transfer and submit the transaction receipt for organizer verification.
@@ -843,9 +586,12 @@ function RegisterWizard() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
-                      <span className="text-slate-500 block">Candidate / Leader:</span>
+                      <span className="text-slate-500 block">Candidate Name:</span>
                       <strong className="text-slate-900 text-sm">{participant.fullName}</strong>
                       <span className="text-slate-600 block">USN: {participant.usn}</span>
+                      <span className="text-slate-500 block text-[11px] mt-0.5">
+                        {participant.department} • {participant.college}
+                      </span>
                     </div>
 
                     <div>
@@ -871,16 +617,6 @@ function RegisterWizard() {
                         })}
                       </div>
                     </div>
-
-                    {hasTeamEvent && teamName && (
-                      <div className="sm:col-span-2 pt-2 border-t border-slate-200">
-                        <span className="text-slate-500 block">Team:</span>
-                        <strong className="text-slate-900">{teamName}</strong>
-                        <span className="text-slate-600 text-xs ml-2">
-                          ({teamMembers.length + 1} total members)
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -1004,7 +740,7 @@ function RegisterWizard() {
                 <div />
               )}
 
-              {currentStep < 4 ? (
+              {currentStep < 3 ? (
                 <button
                   type="button"
                   onClick={handleNext}

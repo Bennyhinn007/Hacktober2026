@@ -72,12 +72,12 @@ async function runTests() {
   assert(hunt?.type === 'TEAM' && hunt?.maxTeamSize === 4, 'Cyber Hunt is team (max 4 members)');
 
   // ==========================================
-  // 3. TEAM VALIDATION & DEDUPLICATION
+  // 3. INDIVIDUAL REGISTRATION VALIDATION
   // ==========================================
-  console.log('\n3. Testing Team Member Limits & Deduplication:');
+  console.log('\n3. Testing Individual Registration Validation:');
 
-  const validTeamPayload = {
-    selectedEventIds: ['mini-hackathon'],
+  const validIndividualPayload = {
+    selectedEventIds: ['mini-hackathon', 'cyber-hunt'],
     primaryParticipant: {
       fullName: 'Rahul Sharma',
       email: 'rahul@example.com',
@@ -87,74 +87,31 @@ async function runTests() {
       department: 'CSE',
       yearSemester: '5th Sem',
     },
-    teamName: 'CyberKnights',
-    teamMembers: [
-      {
-        fullName: 'Amit Patel',
-        email: 'amit@example.com',
-        phone: '9876543211',
-        usn: '3GN23CS010',
-        college: 'GNDEC Bidar',
-        department: 'CSE',
-        yearSemester: '5th Sem',
-      },
-      {
-        fullName: 'Sneha Rao',
-        email: 'sneha@example.com',
-        phone: '9876543212',
-        usn: '3GN23CS050',
-        college: 'GNDEC Bidar',
-        department: 'CSE',
-        yearSemester: '5th Sem',
-      },
-      {
-        fullName: 'Vikram Singh',
-        email: 'vikram@example.com',
-        phone: '9876543213',
-        usn: '3GN23CS060',
-        college: 'GNDEC Bidar',
-        department: 'CSE',
-        yearSemester: '5th Sem',
-      },
-    ],
     transactionId: 'UTR49201948201',
     screenshotData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
   };
 
-  const validParsed = RegistrationWizardSchema.safeParse(validTeamPayload);
-  assert(validParsed.success, 'Valid team of 4 (1 leader + 3 members) accepted');
+  const indParsed = RegistrationWizardSchema.safeParse(validIndividualPayload);
+  assert(indParsed.success, 'Individual registration without team fields accepted for all events');
 
-  // Invalid: 5 members total (1 leader + 4 members)
-  const invalidSizePayload = {
-    ...validTeamPayload,
-    teamMembers: [
-      ...validTeamPayload.teamMembers,
-      {
-        fullName: 'Fifth Member',
-        email: 'fifth@example.com',
-        phone: '9876543214',
-        usn: '3GN23CS099',
-        college: 'GNDEC Bidar',
-        department: 'CSE',
-        yearSemester: '5th Sem',
-      },
-    ],
+  // Invalid: Missing required participant field (e.g. USN)
+  const invalidUsnPayload = {
+    ...validIndividualPayload,
+    primaryParticipant: {
+      ...validIndividualPayload.primaryParticipant,
+      usn: '',
+    },
   };
-  const sizeParsed = RegistrationWizardSchema.safeParse(invalidSizePayload);
-  assert(!sizeParsed.success, 'Team exceeding 4 members strictly rejected');
+  const invalidUsnParsed = RegistrationWizardSchema.safeParse(invalidUsnPayload);
+  assert(!invalidUsnParsed.success, 'Missing USN strictly rejected');
 
-  // Invalid: Duplicate USN (Member has same USN as Leader)
-  const duplicateUsnPayload = {
-    ...validTeamPayload,
-    teamMembers: [
-      {
-        ...validTeamPayload.teamMembers[0],
-        usn: '3GN23CS042', // duplicate of leader
-      },
-    ],
+  // Invalid: Invalid screenshot format
+  const invalidScreenshotPayload = {
+    ...validIndividualPayload,
+    screenshotData: 'plain-text-not-image',
   };
-  const duplicateUsnParsed = RegistrationWizardSchema.safeParse(duplicateUsnPayload);
-  assert(!duplicateUsnParsed.success, 'Duplicate USN between leader and member rejected');
+  const invalidScreenshotParsed = RegistrationWizardSchema.safeParse(invalidScreenshotPayload);
+  assert(!invalidScreenshotParsed.success, 'Invalid payment screenshot proof strictly rejected');
 
   // ==========================================
   // 4. REGISTRATION ID & SAFE QR TOKEN

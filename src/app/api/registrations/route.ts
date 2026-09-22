@@ -32,26 +32,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verify team requirement
-    const hasTeamEvent =
-      selectedEventIds.includes('mini-hackathon') || selectedEventIds.includes('cyber-hunt');
-    let teamEventId = '';
-    if (hasTeamEvent) {
-      teamEventId = selectedEventIds.includes('mini-hackathon')
-        ? 'mini-hackathon'
-        : 'cyber-hunt';
-    }
-
     // Generate unique non-sequential ID
     const registrationId = generateRegistrationId();
     const safeToken = generateSafeToken(registrationId);
 
-    // Save to database repository
+    // Save to database repository as individual candidate registration
     const result = await dbRepository.createRegistration({
       registration: {
         registrationId,
         eventIds: selectedEventIds,
-        type: hasTeamEvent ? (selectedEventIds.length > 1 ? 'MIXED' : 'TEAM') : 'INDIVIDUAL',
+        type: 'INDIVIDUAL',
         totalAmount: pricing.amount,
         paymentStatus: 'PENDING',
       },
@@ -66,9 +56,9 @@ export async function POST(req: NextRequest) {
         githubProfile: primaryParticipant.githubProfile || '',
         linkedinProfile: primaryParticipant.linkedinProfile || '',
       },
-      teamName: hasTeamEvent ? teamName : undefined,
-      teamEventId: hasTeamEvent ? teamEventId : undefined,
-      teamMembers: hasTeamEvent ? teamMembers : undefined,
+      teamName: teamName || undefined,
+      teamEventId: undefined,
+      teamMembers: undefined,
       payment: {
         amount: pricing.amount,
         transactionId: transactionId.trim().toUpperCase(),

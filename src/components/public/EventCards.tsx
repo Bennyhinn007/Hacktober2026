@@ -90,7 +90,7 @@ export default function EventCards() {
                       {isTeam ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-bold">
                           <Users className="w-3.5 h-3.5" />
-                          <span>Team (Max 4 members)</span>
+                          <span>Team Event (Offline Groups)</span>
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold">

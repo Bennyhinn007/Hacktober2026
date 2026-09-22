@@ -63,85 +63,30 @@ export const TeamMemberSchema = z.object({
   yearSemester: z.string().trim().min(1, 'Member year/semester is required'),
 });
 
-export const RegistrationWizardSchema = z
-  .object({
-    selectedEventIds: z
-      .array(z.string())
-      .min(1, 'Please select at least 1 event')
-      .refine(
-        (ids) => ids.every((id) => VALID_EVENT_IDS.includes(id)),
-        'One or more selected events are invalid'
-      ),
-    primaryParticipant: ParticipantSchema,
-    teamName: z.string().trim().max(60).optional(),
-    teamMembers: z.array(TeamMemberSchema).max(3).optional(),
-    transactionId: z
-      .string()
-      .trim()
-      .min(6, 'Transaction ID / UTR must be at least 6 characters')
-      .max(50, 'Transaction ID is too long'),
-    screenshotData: z
-      .string()
-      .min(10, 'Payment screenshot proof is required')
-      .refine(
-        (val) => val.startsWith('data:image/') || val.startsWith('http'),
-        'Screenshot must be a valid image file (PNG, JPG, JPEG, WEBP)'
-      ),
-  })
-  .superRefine((data, ctx) => {
-    const hasTeamEvent =
-      data.selectedEventIds.includes('mini-hackathon') ||
-      data.selectedEventIds.includes('cyber-hunt');
-
-    if (hasTeamEvent) {
-      if (!data.teamName || data.teamName.trim().length < 2) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['teamName'],
-          message: 'Team Name is required for team events (Mini Hackathon / Cyber Hunt)',
-        });
-      }
-
-      // Check duplicate USNs and Emails between leader and members
-      const allUsns = [data.primaryParticipant.usn.toUpperCase()];
-      const allEmails = [data.primaryParticipant.email.toLowerCase()];
-
-      if (data.teamMembers && data.teamMembers.length > 0) {
-        if (data.teamMembers.length > 3) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['teamMembers'],
-            message: 'A team can have at most 4 members (1 leader + 3 members)',
-          });
-        }
-
-        data.teamMembers.forEach((m, idx) => {
-          const mUsn = m.usn.toUpperCase();
-          const mEmail = m.email.toLowerCase();
-
-          if (allUsns.includes(mUsn)) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              path: ['teamMembers', idx, 'usn'],
-              message: `Duplicate USN (${m.usn}) already entered for another member/leader`,
-            });
-          } else {
-            allUsns.push(mUsn);
-          }
-
-          if (allEmails.includes(mEmail)) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              path: ['teamMembers', idx, 'email'],
-              message: `Duplicate email (${m.email}) already entered for another member/leader`,
-            });
-          } else {
-            allEmails.push(mEmail);
-          }
-        });
-      }
-    }
-  });
+export const RegistrationWizardSchema = z.object({
+  selectedEventIds: z
+    .array(z.string())
+    .min(1, 'Please select at least 1 event')
+    .refine(
+      (ids) => ids.every((id) => VALID_EVENT_IDS.includes(id)),
+      'One or more selected events are invalid'
+    ),
+  primaryParticipant: ParticipantSchema,
+  teamName: z.string().trim().max(60).optional(),
+  teamMembers: z.array(TeamMemberSchema).max(3).optional(),
+  transactionId: z
+    .string()
+    .trim()
+    .min(6, 'Transaction ID / UTR must be at least 6 characters')
+    .max(50, 'Transaction ID is too long'),
+  screenshotData: z
+    .string()
+    .min(10, 'Payment screenshot proof is required')
+    .refine(
+      (val) => val.startsWith('data:image/') || val.startsWith('http'),
+      'Screenshot must be a valid image file (PNG, JPG, JPEG, WEBP)'
+    ),
+});
 
 export const AdminLoginSchema = z.object({
   email: z.string().trim().email('Enter a valid email address'),

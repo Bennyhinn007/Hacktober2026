@@ -71,7 +71,7 @@ export const OFFICIAL_EVENTS: EventDefinition[] = [
     shortDescription: 'Fast-paced collaborative sprint to design, build, and deploy secure tech prototypes addressing real-world problem statements.',
     description: 'Teams of up to 4 members collaborate to engineer functional prototypes in cloud security, IoT protection, blockchain integrity, or cyber threat intelligence.',
     rules: [
-      'Team participation: Maximum 4 members per team (1 Team Leader + up to 3 members).',
+      'Individual online registration. Teams (up to 4 members) are formed offline directly at the event venue.',
       'All code must be authored during the event timeframe. Pre-built proprietary solutions are disallowed.',
       'Open-source libraries and APIs are permitted provided proper attribution is documented.',
       'Final submission must include a live demo and public GitHub repository.',
@@ -92,12 +92,12 @@ export const OFFICIAL_EVENTS: EventDefinition[] = [
     shortDescription: 'Challenging capture-the-flag (CTF) and campus cryptographic scavenger hunt solving steganography and logic puzzles.',
     description: 'Navigate through cryptograms, web exploitation challenges, forensics puzzles, and physical campus clues to decrypt the master flag.',
     rules: [
-      'Team participation: Maximum 4 members per team.',
+      'Individual online registration. Teams (up to 4 members) are formed offline directly at the event venue.',
       'Participants may interact ONLY with systems explicitly authorized in writing by the organizers.',
       'Attacking event infrastructure or scoring servers results in immediate disqualification and security review.',
       'Flag sharing between distinct teams is strictly prohibited.',
     ],
-    eligibility: 'Teams of 2 to 4 registered students.',
+    eligibility: 'Teams of up to 4 registered students formed offline at venue.',
     coordinator: '[TBD]',
     time: 'TBD',
     venue: 'TBD',

@@ -30,8 +30,11 @@ Official web portal and administrative management system for **HACKTOBER 2026** 
   * 3 Events: **₹199** (Confirmed)
   * 4 Events: **₹300** (Confirmed)
   * 5 Events: **₹350** (Confirmed)
-* **Team Roster Management**: Conditional step for *Mini Hackathon* & *Cyber Hunt*. Supports 1 team leader + up to 3 members (maximum 4) with client/server duplicate USN/email protection.
-* **Payment Proof Submission**: Displays college UPI ID & QR code. Requires 12-digit UTR/transaction ID and screenshot upload (<5MB, JPG/PNG/WEBP).
+* **Streamlined 3-Step Individual Registration**:
+  * Step 1: Select Event(s) & Calculate Dynamic Tier Pricing
+  * Step 2: Participant Details (Name, USN, College, Email, Phone, Year, Branch)
+  * Step 3: Payment Proof (College UPI ID / QR code, 12-digit UTR, Screenshot proof upload) & Review
+* **Offline Team Formation**: For collaborative events (*Mini Hackathon* & *Cyber Hunt*), participants register individually online and team groupings (up to 4 members) are coordinated offline directly at the venue desk.
 * **Printable Participant Accreditation Pass (`/register/confirmation/[id]`)**: Generates non-sequential `HT26-XXXXXX` registration ID and safe HMAC QR code.
 
 ### 3. Non-Sequential IDs & Cryptographic QR Codes
@@ -110,7 +113,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ```bash
 npx tsx tests/critical-flows.ts
 ```
-> **31/31 tests passing (100%)**: Dynamic pricing, team limits, duplicate protection, non-sequential IDs, HMAC tokens, payment lifecycle, RBAC, and export queries.
+> **32/32 tests passing (100%)**: Dynamic pricing, event limits, individual registration validation, non-sequential IDs, HMAC tokens, payment lifecycle, RBAC, and export queries.
 
 ### Full-Stack Live HTTP E2E Suite
 ```bash

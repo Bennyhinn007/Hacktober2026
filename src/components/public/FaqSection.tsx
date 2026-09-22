@@ -10,12 +10,12 @@ const FAQ_ITEMS = [
     a: 'Registration fees are tiered based on the total number of events you select: 1 Event costs ₹79, 2 Events cost ₹150, 3 Events cost ₹199, 4 Events cost ₹300, and all 5 Events cost ₹350.',
   },
   {
-    q: 'Can an individual register for both individual and team events?',
-    a: 'Yes! A participant can participate in multiple events. When you select a team event (Mini Hackathon or Cyber Hunt), you will be prompted to enter your team name and up to 3 additional team members.',
+    q: 'How does registration work for team competitions like Mini Hackathon and Cyber Hunt?',
+    a: 'Every student registers individually on this website for their chosen events. Team groupings (up to 4 members) for Mini Hackathon and Cyber Hunt will be formed and coordinated offline directly at the event venue. You do not need to enter team members online.',
   },
   {
-    q: 'What is the maximum team size for Mini Hackathon and Cyber Hunt?',
-    a: 'Each team can have a maximum of 4 members (1 Team Leader who registers + up to 3 additional members). No more than 4 members are allowed.',
+    q: 'What is the team size limit for Mini Hackathon and Cyber Hunt?',
+    a: 'When teams form offline at the venue, each group can have a maximum of 4 registered participants. All team members must hold a valid individual registration pass.',
   },
   {
     q: 'What happens after I submit my registration and payment screenshot?',
