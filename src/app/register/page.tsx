@@ -494,7 +494,7 @@ function RegisterWizard() {
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. CSE / IoT / Cyber / AI"
+                      placeholder="e.g. CSE / EEE / Cyber / AI"
                       value={participant.department}
                       onChange={(e) =>
                         setParticipant({ ...participant, department: e.target.value })
