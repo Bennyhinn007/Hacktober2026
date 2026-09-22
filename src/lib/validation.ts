@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OFFICIAL_EVENTS } from './constants';
+import { OFFICIAL_EVENTS, ALLOWED_SEMESTERS } from './constants';
 
 const VALID_EVENT_IDS = OFFICIAL_EVENTS.map((e) => e.id);
 
@@ -36,21 +36,13 @@ export const ParticipantSchema = z.object({
   yearSemester: z
     .string()
     .trim()
-    .min(1, 'Year / Semester is required'),
-  githubProfile: z
-    .string()
-    .trim()
-    .optional()
-    .refine((val) => !val || val.startsWith('http') || val.startsWith('github.com'), {
-      message: 'Invalid GitHub profile URL',
-    }),
-  linkedinProfile: z
-    .string()
-    .trim()
-    .optional()
-    .refine((val) => !val || val.startsWith('http') || val.startsWith('linkedin.com'), {
-      message: 'Invalid LinkedIn profile URL',
-    }),
+    .min(1, 'Semester is required')
+    .refine(
+      (val) => (ALLOWED_SEMESTERS as readonly string[]).includes(val),
+      { message: 'Semester must be 1st Sem, 3rd Sem, 5th Sem, or 7th Sem' }
+    ),
+  githubProfile: z.string().trim().optional(),
+  linkedinProfile: z.string().trim().optional(),
 });
 
 export const TeamMemberSchema = z.object({
@@ -89,6 +81,6 @@ export const RegistrationWizardSchema = z.object({
 });
 
 export const AdminLoginSchema = z.object({
-  email: z.string().trim().email('Enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().trim().email('Enter a valid email address').max(100, 'Email address too long'),
+  password: z.string().min(6, 'Password must be at least 6 characters').max(128, 'Password too long'),
 });

@@ -43,9 +43,7 @@ function RegisterWizard() {
     usn: '',
     college: 'Guru Nanak Dev Engineering College, Bidar',
     department: 'Computer Science and Engineering',
-    yearSemester: '3rd Year (5th Sem)',
-    githubProfile: '',
-    linkedinProfile: '',
+    yearSemester: '5th Sem',
   });
 
   const [transactionId, setTransactionId] = useState('');
@@ -508,52 +506,23 @@ function RegisterWizard() {
                     )}
                   </div>
 
-                  {/* Year / Semester */}
+                  {/* Semester */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-700">
-                      Year / Semester <span className="text-red-500">*</span>
+                      Semester <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 3rd Year / 5th Sem"
+                    <select
                       value={participant.yearSemester}
                       onChange={(e) =>
                         setParticipant({ ...participant, yearSemester: e.target.value })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-                    />
-                  </div>
-
-                  {/* GitHub Profile (Optional) */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-slate-600">
-                      GitHub Profile (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://github.com/username"
-                      value={participant.githubProfile}
-                      onChange={(e) =>
-                        setParticipant({ ...participant, githubProfile: e.target.value })
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-                    />
-                  </div>
-
-                  {/* LinkedIn Profile (Optional) */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-slate-600">
-                      LinkedIn Profile (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://linkedin.com/in/username"
-                      value={participant.linkedinProfile}
-                      onChange={(e) =>
-                        setParticipant({ ...participant, linkedinProfile: e.target.value })
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-                    />
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white"
+                    >
+                      <option value="1st Sem">1st Sem</option>
+                      <option value="3rd Sem">3rd Sem</option>
+                      <option value="5th Sem">5th Sem</option>
+                      <option value="7th Sem">7th Sem</option>
+                    </select>
                   </div>
                 </div>
               </div>

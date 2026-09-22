@@ -8,8 +8,8 @@ import { Shield, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowLeft, Loader2 } from
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@gndec.ac.in');
-  const [password, setPassword] = useState('Admin@Hacktober2026');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,9 +87,10 @@ export default function AdminLoginPage() {
                 <input
                   type="email"
                   required
+                  autoComplete="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@gndec.ac.in"
+                  placeholder="organizer@gndec.ac.in"
                   className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
                 />
               </div>
@@ -105,8 +106,10 @@ export default function AdminLoginPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
                   className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
                 />
                 <button
@@ -136,13 +139,14 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          {/* Seed credentials notice for demonstration */}
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-500 space-y-1">
-            <span className="font-bold text-slate-700 block">Default Super Admin Credentials:</span>
-            <div className="font-mono text-slate-600">
-              Email: <strong>admin@gndec.ac.in</strong>
-              <br />
-              Password: <strong>Admin@Hacktober2026</strong>
+          {/* Secure Institutional Access Notice */}
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-500 flex items-start gap-2.5">
+            <Shield className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-slate-700 block">Restricted Administrative Access</strong>
+              <span>
+                Authorized organizers only. All authentication attempts and network IP telemetry are cryptographically audited.
+              </span>
             </div>
           </div>
 

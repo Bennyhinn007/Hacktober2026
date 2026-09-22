@@ -3,11 +3,13 @@ import {
   calculateRegistrationPrice,
   OFFICIAL_EVENTS,
   INITIAL_PRICING_CONFIG,
+  ALLOWED_SEMESTERS,
 } from '../src/lib/constants';
 import { generateRegistrationId, generateSafeToken, verifySafeToken } from '../src/lib/idGenerator';
 import { RegistrationWizardSchema } from '../src/lib/validation';
 import { dbRepository } from '../src/lib/db/repository';
 import { isAuthorizedRole } from '../src/lib/auth/jwt';
+import { authRateLimiter } from '../src/lib/auth/rate-limiter';
 
 let totalTests = 0;
 let passedTests = 0;
@@ -93,6 +95,21 @@ async function runTests() {
 
   const indParsed = RegistrationWizardSchema.safeParse(validIndividualPayload);
   assert(indParsed.success, 'Individual registration without team fields accepted for all events');
+
+  // Semester Validation: Only 1st, 3rd, 5th, 7th Sem accepted
+  for (const sem of ALLOWED_SEMESTERS) {
+    const semPayload = {
+      ...validIndividualPayload,
+      primaryParticipant: { ...validIndividualPayload.primaryParticipant, yearSemester: sem },
+    };
+    assert(RegistrationWizardSchema.safeParse(semPayload).success, `Semester ${sem} is accepted`);
+  }
+
+  const invalidSemPayload = {
+    ...validIndividualPayload,
+    primaryParticipant: { ...validIndividualPayload.primaryParticipant, yearSemester: '6th Sem' },
+  };
+  assert(!RegistrationWizardSchema.safeParse(invalidSemPayload).success, 'Unlisted semester (6th Sem) strictly rejected');
 
   // Invalid: Missing required participant field (e.g. USN)
   const invalidUsnPayload = {
@@ -223,6 +240,32 @@ async function runTests() {
     ),
     'Export query strictly honors active filters (Cyber Quiz + VERIFIED)'
   );
+
+  // ==========================================
+  // 9. ADMIN LOGIN RATE LIMITER & BRUTE-FORCE LOCKOUT
+  // ==========================================
+  console.log('\n9. Testing Admin Login Rate Limiter & Brute-Force Lockout:');
+  const testKey = 'ip:192.168.1.99';
+  authRateLimiter.reset(testKey);
+
+  assert(!authRateLimiter.isLockedOut(testKey).locked, 'Initial state is not locked out');
+
+  // Record 4 failed attempts
+  for (let i = 1; i <= 4; i++) {
+    const res = authRateLimiter.recordFailure(testKey);
+    assert(!res.locked, `Attempt ${i} is not locked out`);
+    assert(res.attemptsLeft === 5 - i, `${5 - i} attempt(s) remaining`);
+  }
+
+  // 5th failed attempt triggers lockout
+  const fifthAttempt = authRateLimiter.recordFailure(testKey);
+  assert(fifthAttempt.locked, '5th failed attempt triggers lockout');
+  assert(fifthAttempt.attemptsLeft === 0, '0 attempts remaining on lockout');
+  assert(authRateLimiter.isLockedOut(testKey).locked, 'Subsequent checks confirm lockout');
+
+  // Reset unlocks
+  authRateLimiter.reset(testKey);
+  assert(!authRateLimiter.isLockedOut(testKey).locked, 'Reset successfully clears lockout');
 
   console.log(`\n=========================================`);
   console.log(`TEST RESULTS: ${passedTests}/${totalTests} PASSED (100%)`);

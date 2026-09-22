@@ -257,3 +257,6 @@ export const GENERAL_RULES = [
 
 export const DISQUALIFICATION_DISCLAIMER =
   'Disclaimer: Final schedule, rules, and venue allocations may be updated by the organizing committee. Official announcements will be notified via registered email and the notice board.';
+
+export const ALLOWED_SEMESTERS = ['1st Sem', '3rd Sem', '5th Sem', '7th Sem'] as const;
+export type AllowedSemester = (typeof ALLOWED_SEMESTERS)[number];

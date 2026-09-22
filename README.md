@@ -32,7 +32,7 @@ Official web portal and administrative management system for **HACKTOBER 2026** 
   * 5 Events: **₹350** (Confirmed)
 * **Streamlined 3-Step Individual Registration**:
   * Step 1: Select Event(s) & Calculate Dynamic Tier Pricing
-  * Step 2: Participant Details (Name, USN, College, Email, Phone, Year, Branch)
+  * Step 2: Participant Details (Name, USN, College, Email, Phone, Branch, and Semester dropdown restricted strictly to **1st Sem**, **3rd Sem**, **5th Sem**, and **7th Sem**)
   * Step 3: Payment Proof (College UPI ID / QR code, 12-digit UTR, Screenshot proof upload) & Review
 * **Offline Team Formation**: For collaborative events (*Mini Hackathon* & *Cyber Hunt*), participants register individually online and team groupings (up to 4 members) are coordinated offline directly at the venue desk.
 * **Printable Participant Accreditation Pass (`/register/confirmation/[id]`)**: Generates non-sequential `HT26-XXXXXX` registration ID and safe HMAC QR code.
@@ -42,7 +42,11 @@ Official web portal and administrative management system for **HACKTOBER 2026** 
 * **HMAC-SHA256 Safe QR Token**: QR codes encode `HT26-XXXXXX-<hmac>` instead of raw candidate PII.
 * **Public QR Verification (`/verify?token=...`)**: Confirms pass authenticity, college, events, and payment clearance without leaking phone/email.
 
-### 4. Role-Based Admin Operations (`/admin`)
+### 4. Hardened Role-Based Admin Operations (`/admin`)
+* **Brute-Force Lockout & Rate Limiting**: In-memory sliding-window limiter blocks IP and account targets after 5 failed login attempts for 15 minutes (`HTTP 429 Too Many Requests`).
+* **Timing Attack Mitigation**: Constant-time comparison ensures identical server response latency regardless of whether an email exists in the database.
+* **Security Headers & HttpOnly Cookies**: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Cache-Control: no-store`, and hardened HttpOnly session cookies.
+* **Restricted Access UI**: Public login page no longer exposes demo credentials; requires genuine organizer authorization.
 * **RBAC Hierarchy**: `SUPER_ADMIN` > `ADMIN` > `VIEWER`.
 * **Live Analytics Dashboard (`/admin/dashboard`)**: 8 real-time metric cards (0 on empty DB, no fake mocks) + event distribution breakdown.
 * **Registration Management (`/admin/registrations`)**: Search, multi-filtering, sorting, pagination, detail drawer, and soft-delete/restore.
@@ -98,12 +102,10 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🔑 Default Super Admin Credentials
+## 🔑 Initial Super Admin Setup
 
 * **URL**: `http://localhost:3000/admin/login`
-* **Email**: `admin@gndec.ac.in`
-* **Password**: `Admin@Hacktober2026`
-* **Role**: `SUPER_ADMIN`
+* **Default Seeding**: Seeded via environment variables (`DEFAULT_ADMIN_EMAIL` / `DEFAULT_ADMIN_PASSWORD`) into the secure repository. Credentials are no longer displayed on the login page for security.
 
 ---
 
@@ -113,7 +115,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ```bash
 npx tsx tests/critical-flows.ts
 ```
-> **32/32 tests passing (100%)**: Dynamic pricing, event limits, individual registration validation, non-sequential IDs, HMAC tokens, payment lifecycle, RBAC, and export queries.
+> **50/50 tests passing (100%)**: Dynamic pricing, event limits, individual registration validation, semester constraints (1st/3rd/5th/7th Sem), rate limiting, brute-force lockout, non-sequential IDs, HMAC tokens, payment lifecycle, RBAC, and export queries.
 
 ### Full-Stack Live HTTP E2E Suite
 ```bash
