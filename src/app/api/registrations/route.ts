@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
         eventIds: selectedEventIds,
         type: 'INDIVIDUAL',
         totalAmount: pricing.amount,
-        paymentStatus: 'PENDING',
+        paymentStatus: 'VERIFIED',
       },
       primaryParticipant: {
         fullName: primaryParticipant.fullName,
@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
         transactionId: transactionId.trim().toUpperCase(),
         screenshotUrl: screenshotData,
         screenshotMime: screenshotData.substring(5, screenshotData.indexOf(';')) || 'image/png',
+        status: 'VERIFIED',
       },
     });
 
@@ -72,8 +73,8 @@ export async function POST(req: NextRequest) {
       registrationId,
       safeToken,
       amount: pricing.amount,
-      paymentStatus: 'PENDING',
-      message: 'Registration submitted successfully.',
+      paymentStatus: 'VERIFIED',
+      message: 'Registration confirmed successfully.',
     });
   } catch (error: any) {
     console.error('Registration API error:', error);

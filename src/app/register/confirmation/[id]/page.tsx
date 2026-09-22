@@ -342,8 +342,14 @@ export default function ConfirmationPage({
                 <span className="text-slate-400 block text-[10px] uppercase font-bold">
                   Payment Status
                 </span>
-                <span className="inline-block mt-0.5 px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
-                  {registration.paymentStatus}
+                <span
+                  className={`inline-block mt-0.5 px-2.5 py-0.5 rounded text-[11px] font-bold ${
+                    registration.paymentStatus === 'VERIFIED'
+                      ? 'bg-teal-100 text-teal-800 border border-teal-200'
+                      : 'bg-amber-100 text-amber-900 border border-amber-200'
+                  }`}
+                >
+                  {registration.paymentStatus === 'VERIFIED' ? 'CONFIRMED' : registration.paymentStatus}
                 </span>
               </div>
 

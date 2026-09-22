@@ -156,7 +156,7 @@ export const dbRepository = {
     teamMembers?: Array<Omit<IParticipant, 'id' | 'registrationId' | 'isPrimary' | 'createdAt'>>;
     teamName?: string;
     teamEventId?: string;
-    payment: Omit<IPayment, 'id' | 'registrationId' | 'status' | 'createdAt'>;
+    payment: Omit<IPayment, 'id' | 'registrationId' | 'createdAt'> & { status?: PaymentStatus };
   }): Promise<{ registration: IRegistration; payment: IPayment }> {
     const store = getStore();
     const regId = `reg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -218,7 +218,7 @@ export const dbRepository = {
       ...data.payment,
       id: `pay_${Date.now()}`,
       registrationId: data.registration.registrationId,
-      status: 'PENDING',
+      status: data.payment.status || data.registration.paymentStatus || 'VERIFIED',
       createdAt: now,
     };
     store.payments.push(newPayment);

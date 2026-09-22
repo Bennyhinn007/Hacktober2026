@@ -42,7 +42,7 @@ function RegisterWizard() {
     phone: '',
     usn: '',
     college: 'Guru Nanak Dev Engineering College, Bidar',
-    department: 'Computer Science and Engineering',
+    department: '',
     yearSemester: '5th Sem',
   });
 
