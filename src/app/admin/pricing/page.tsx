@@ -112,13 +112,13 @@ export default function AdminPricingPage() {
         </div>
       )}
 
-      {/* Info notice about 2 & 4 events */}
-      <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-3">
-        <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+      {/* Info notice about pricing tiers */}
+      <div className="p-4 rounded-xl bg-teal-50 border border-teal-200 text-teal-950 text-xs flex items-start gap-3">
+        <Info className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <strong className="block">Organizer Notice on 2-Event and 4-Event Pricing:</strong>
+          <strong className="block">Dynamic Pricing Tier Matrix:</strong>
           <p>
-            Per guidelines, prices for 2 and 4 events are initially unfinalized (TBD). Once the committee decides on these tiers, input the price here and click Save to instantly activate them on the public registration portal without code changes.
+            All 5 event combinations are currently active: 1 Event (₹79), 2 Events (₹150), 3 Events (₹199), 4 Events (₹300), and 5 Events (₹350). You can adjust prices or mark any tier as TBD at any time, and changes apply instantly without code deployment.
           </p>
         </div>
       </div>

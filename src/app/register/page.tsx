@@ -463,7 +463,7 @@ function RegisterWizard() {
                     )}
                     {!pricing.notice && selectedEventIds.length > 0 && (
                       <span className="text-teal-700 font-semibold">
-                        ✓ Tier confirmed (1=₹79, 3=₹199, 5=₹350)
+                        ✓ Tier confirmed (1=₹79, 2=₹150, 3=₹199, 4=₹300, 5=₹350)
                       </span>
                     )}
                   </div>

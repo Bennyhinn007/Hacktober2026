@@ -26,9 +26,10 @@ Official web portal and administrative management system for **HACKTOBER 2026** 
 ### 2. Multi-Step Registration Wizard (`/register`)
 * **Dynamic Pricing Engine**:
   * 1 Event: **₹79** (Confirmed)
+  * 2 Events: **₹150** (Confirmed)
   * 3 Events: **₹199** (Confirmed)
+  * 4 Events: **₹300** (Confirmed)
   * 5 Events: **₹350** (Confirmed)
-  * 2 or 4 Events: **TBD** — dynamically blocks payment submission with an official organizer confirmation notice.
 * **Team Roster Management**: Conditional step for *Mini Hackathon* & *Cyber Hunt*. Supports 1 team leader + up to 3 members (maximum 4) with client/server duplicate USN/email protection.
 * **Payment Proof Submission**: Displays college UPI ID & QR code. Requires 12-digit UTR/transaction ID and screenshot upload (<5MB, JPG/PNG/WEBP).
 * **Printable Participant Accreditation Pass (`/register/confirmation/[id]`)**: Generates non-sequential `HT26-XXXXXX` registration ID and safe HMAC QR code.

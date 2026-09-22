@@ -136,19 +136,9 @@ export interface PricingTierConfig {
 
 export const INITIAL_PRICING_CONFIG: Record<number, PricingTierConfig> = {
   1: { eventCount: 1, price: 79, status: 'ACTIVE' },
-  2: {
-    eventCount: 2,
-    price: null,
-    status: 'TBD',
-    notice: 'Pricing for this combination will be confirmed by the organizers.',
-  },
+  2: { eventCount: 2, price: 150, status: 'ACTIVE' },
   3: { eventCount: 3, price: 199, status: 'ACTIVE' },
-  4: {
-    eventCount: 4,
-    price: null,
-    status: 'TBD',
-    notice: 'Pricing for this combination will be confirmed by the organizers.',
-  },
+  4: { eventCount: 4, price: 300, status: 'ACTIVE' },
   5: { eventCount: 5, price: 350, status: 'ACTIVE' },
 };
 

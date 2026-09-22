@@ -33,26 +33,27 @@ async function runTests() {
   const price1 = calculateRegistrationPrice(['cyber-quiz']);
   assert(price1.amount === 79 && price1.canProceed === true, '1 event = ₹79 (ACTIVE)');
 
+  const price2 = calculateRegistrationPrice(['cyber-quiz', 'cyber-debate']);
+  assert(price2.amount === 150 && price2.canProceed === true, '2 events = ₹150 (ACTIVE)');
+
   const price3 = calculateRegistrationPrice(['cyber-quiz', 'cyber-debate', 'tech-debug']);
   assert(price3.amount === 199 && price3.canProceed === true, '3 events = ₹199 (ACTIVE)');
+
+  const price4 = calculateRegistrationPrice(['cyber-quiz', 'cyber-debate', 'mini-hackathon', 'cyber-hunt']);
+  assert(price4.amount === 300 && price4.canProceed === true, '4 events = ₹300 (ACTIVE)');
 
   const price5 = calculateRegistrationPrice(OFFICIAL_EVENTS.map((e) => e.id));
   assert(price5.amount === 350 && price5.canProceed === true, '5 events = ₹350 (ACTIVE)');
 
-  const price2 = calculateRegistrationPrice(['cyber-quiz', 'cyber-debate']);
+  // Test dynamic TBD behavior with customConfig override
+  const customTbdPrice = calculateRegistrationPrice(['cyber-quiz', 'cyber-debate'], {
+    2: { eventCount: 2, price: null, status: 'TBD', notice: 'Custom organizer hold' },
+  });
   assert(
-    price2.amount === null &&
-      price2.canProceed === false &&
-      Boolean(price2.notice?.includes('confirmed by the organizers')),
-    '2 events = TBD (Blocks payment submission with organizer confirmation notice)'
-  );
-
-  const price4 = calculateRegistrationPrice(['cyber-quiz', 'cyber-debate', 'mini-hackathon', 'cyber-hunt']);
-  assert(
-    price4.amount === null &&
-      price4.canProceed === false &&
-      Boolean(price4.notice?.includes('confirmed by the organizers')),
-    '4 events = TBD (Blocks payment submission with organizer confirmation notice)'
+    customTbdPrice.amount === null &&
+      customTbdPrice.canProceed === false &&
+      Boolean(customTbdPrice.notice?.includes('Custom organizer hold')),
+    'TBD tier dynamically blocks payment submission with notice'
   );
 
   // ==========================================

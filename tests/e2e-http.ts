@@ -98,12 +98,73 @@ async function runE2EServerTests() {
   assert.strictEqual(regRes.status, 200, 'Registration creation should succeed (HTTP 200)');
   const regData = await regRes.json();
   assert(regData.success, 'Registration must report success: true');
+  assert.strictEqual(regData.amount, 199, '3 events registration price must be ₹199');
   const regId = regData.registrationId;
   const qrToken = regData.safeToken;
   assert(regId.startsWith('HT26-'), 'Registration ID format must be HT26-XXXXXX');
   assert(qrToken, 'Cryptographic QR token must be generated');
-  console.log(`  ✓ Registration created with ID: ${regId}`);
+  console.log(`  ✓ Registration created with ID: ${regId} (3 events = ₹199)`);
   console.log(`  ✓ Safe QR Token generated: ${qrToken.substring(0, 32)}...`);
+
+  // Verify 2-event tier (₹150) via live API
+  const reg2Res = await fetch(`${baseUrl}/api/registrations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      selectedEventIds: ['cyber-quiz', 'cyber-debate'],
+      primaryParticipant: {
+        fullName: 'Aarav Patel',
+        email: 'aarav.patel@gndec.ac.in',
+        phone: '9876543220',
+        usn: '3GN23CS201',
+        college: 'Guru Nanak Dev Engineering College, Bidar',
+        department: 'Computer Science and Engineering',
+        yearSemester: '3rd Year (5th Sem)',
+      },
+      transactionId: 'UTR112233445566',
+      screenshotData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    }),
+  });
+  assert.strictEqual(reg2Res.status, 200, '2-event registration must succeed');
+  const reg2Data = await reg2Res.json();
+  assert.strictEqual(reg2Data.amount, 150, '2-event registration price must be ₹150');
+  console.log(`  ✓ 2-Event Registration verified live: ID = ${reg2Data.registrationId}, Amount = ₹${reg2Data.amount}`);
+
+  // Verify 4-event tier (₹300) via live API
+  const reg4Res = await fetch(`${baseUrl}/api/registrations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      selectedEventIds: ['cyber-quiz', 'cyber-debate', 'tech-debug', 'mini-hackathon'],
+      primaryParticipant: {
+        fullName: 'Diya Rao',
+        email: 'diya.rao@gndec.ac.in',
+        phone: '9876543221',
+        usn: '3GN23CS202',
+        college: 'Guru Nanak Dev Engineering College, Bidar',
+        department: 'Computer Science and Engineering',
+        yearSemester: '3rd Year (5th Sem)',
+      },
+      teamName: 'CyberKnights 4',
+      teamMembers: [
+        {
+          fullName: 'Member 2',
+          email: 'member2@gndec.ac.in',
+          phone: '9876543222',
+          usn: '3GN23CS203',
+          college: 'Guru Nanak Dev Engineering College, Bidar',
+          department: 'Computer Science and Engineering',
+          yearSemester: '3rd Year (5th Sem)',
+        },
+      ],
+      transactionId: 'UTR223344556677',
+      screenshotData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    }),
+  });
+  assert.strictEqual(reg4Res.status, 200, '4-event registration must succeed');
+  const reg4Data = await reg4Res.json();
+  assert.strictEqual(reg4Data.amount, 300, '4-event registration price must be ₹300');
+  console.log(`  ✓ 4-Event Registration verified live: ID = ${reg4Data.registrationId}, Amount = ₹${reg4Data.amount}`);
 
   // 5. Test QR Verification Endpoint
   console.log('\n5. Testing Cryptographic QR Verification Pass:');

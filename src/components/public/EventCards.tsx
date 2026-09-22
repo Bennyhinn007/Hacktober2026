@@ -49,8 +49,14 @@ export default function EventCards() {
             <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-900 border border-slate-200">
               1 Event: <strong>₹79</strong>
             </span>
+            <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-900 border border-slate-200">
+              2 Events: <strong>₹150</strong>
+            </span>
             <span className="px-2.5 py-1 rounded-md bg-teal-50 text-teal-900 border border-teal-200">
               3 Events: <strong>₹199</strong> (Popular)
+            </span>
+            <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-900 border border-slate-200">
+              4 Events: <strong>₹300</strong>
             </span>
             <span className="px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-900 border border-indigo-200">
               All 5 Events: <strong>₹350</strong> (Best Value)

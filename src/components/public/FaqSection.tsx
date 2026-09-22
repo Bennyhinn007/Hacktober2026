@@ -7,7 +7,7 @@ import { EVENT_INFO } from '@/lib/constants';
 const FAQ_ITEMS = [
   {
     q: 'How does the dynamic pricing tier work?',
-    a: 'Registration fees are tiered based on the total number of events you select: 1 Event costs ₹79, 3 Events cost ₹199, and all 5 Events cost ₹350. Combinations of 2 and 4 events are currently unfinalized and will be confirmed by organizers.',
+    a: 'Registration fees are tiered based on the total number of events you select: 1 Event costs ₹79, 2 Events cost ₹150, 3 Events cost ₹199, 4 Events cost ₹300, and all 5 Events cost ₹350.',
   },
   {
     q: 'Can an individual register for both individual and team events?',
