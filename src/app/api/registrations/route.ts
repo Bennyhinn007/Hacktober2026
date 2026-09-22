@@ -3,6 +3,7 @@ import { RegistrationWizardSchema } from '@/lib/validation';
 import { dbRepository } from '@/lib/db/repository';
 import { generateRegistrationId, generateSafeToken } from '@/lib/idGenerator';
 import { calculateRegistrationPrice } from '@/lib/constants';
+import { uploadPaymentScreenshot } from '@/lib/storage/cloudinary';
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,11 +16,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: errorMsg }, { status: 400 });
     }
 
-    const { selectedEventIds, primaryParticipant, teamName, teamMembers, transactionId, screenshotData } = parsed.data;
+    const { selectedEventIds, primaryParticipant, teamName, transactionId, screenshotData, screenshotName } = parsed.data;
 
     // Calculate dynamic pricing from repository settings
     const settings = await dbRepository.getSettings();
-    const pricingConfig = settings.pricing as any;
+    const pricingConfig = settings.pricing as Parameters<typeof calculateRegistrationPrice>[1];
     const pricing = calculateRegistrationPrice(selectedEventIds, pricingConfig);
 
     if (!pricing.canProceed || pricing.amount === null) {
@@ -36,14 +37,31 @@ export async function POST(req: NextRequest) {
     const registrationId = generateRegistrationId();
     const safeToken = generateSafeToken(registrationId);
 
-    // Save to database repository as individual candidate registration
-    const result = await dbRepository.createRegistration({
+    // Upload payment proof screenshot exclusively to Cloudinary (zero fallback to database/base64)
+    let uploadedScreenshot;
+    try {
+      uploadedScreenshot = await uploadPaymentScreenshot(screenshotData, registrationId, screenshotName);
+    } catch (uploadError: unknown) {
+      const uploadErrMsg =
+        uploadError instanceof Error ? uploadError.message : 'Payment screenshot upload failed.';
+      console.error('[Registration API] Cloudinary upload rejected registration:', uploadErrMsg);
+      return NextResponse.json(
+        {
+          success: false,
+          error: uploadErrMsg,
+        },
+        { status: 502 }
+      );
+    }
+
+    // Save to database repository with Cloudinary metadata and strictly PENDING payment status
+    await dbRepository.createRegistration({
       registration: {
         registrationId,
         eventIds: selectedEventIds,
         type: 'INDIVIDUAL',
         totalAmount: pricing.amount,
-        paymentStatus: 'VERIFIED',
+        paymentStatus: 'PENDING',
       },
       primaryParticipant: {
         fullName: primaryParticipant.fullName,
@@ -62,9 +80,13 @@ export async function POST(req: NextRequest) {
       payment: {
         amount: pricing.amount,
         transactionId: transactionId.trim().toUpperCase(),
-        screenshotUrl: screenshotData,
-        screenshotMime: screenshotData.substring(5, screenshotData.indexOf(';')) || 'image/png',
-        status: 'VERIFIED',
+        screenshotUrl: uploadedScreenshot.secureUrl, // Cloudinary secure CDN URL
+        screenshotMime: uploadedScreenshot.mimeType,
+        cloudinaryPublicId: uploadedScreenshot.cloudinaryPublicId,
+        originalFilename: uploadedScreenshot.originalFilename,
+        fileSize: uploadedScreenshot.fileSize,
+        uploadedAt: uploadedScreenshot.uploadedAt,
+        status: 'PENDING',
       },
     });
 
@@ -73,15 +95,16 @@ export async function POST(req: NextRequest) {
       registrationId,
       safeToken,
       amount: pricing.amount,
-      paymentStatus: 'VERIFIED',
-      message: 'Registration confirmed successfully.',
+      paymentStatus: 'PENDING',
+      message: 'Registration submitted successfully. Payment verification is pending organizer approval.',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : 'Internal server error processing registration.';
     console.error('Registration API error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Internal server error processing registration.',
+        error: errorMsg,
       },
       { status: 500 }
     );

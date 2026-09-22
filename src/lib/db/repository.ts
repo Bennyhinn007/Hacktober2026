@@ -213,12 +213,19 @@ export const dbRepository = {
       store.teams.push(newTeam);
     }
 
+    // Security safeguard: MongoDB/database must NEVER store raw base64 or image binary
+    if (data.payment.screenshotUrl && data.payment.screenshotUrl.startsWith('data:')) {
+      throw new Error(
+        'Security policy violation: Raw image binary/base64 is prohibited in database storage. Cloudinary CDN asset required.'
+      );
+    }
+
     // Payment record
     const newPayment: IPayment = {
       ...data.payment,
       id: `pay_${Date.now()}`,
       registrationId: data.registration.registrationId,
-      status: data.payment.status || data.registration.paymentStatus || 'VERIFIED',
+      status: data.payment.status || data.registration.paymentStatus || 'PENDING',
       createdAt: now,
     };
     store.payments.push(newPayment);

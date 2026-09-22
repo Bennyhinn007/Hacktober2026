@@ -171,12 +171,48 @@ async function runTests() {
     payment: {
       amount: 199,
       transactionId: 'UTR_TEST_123456',
-      screenshotUrl: 'data:image/png;base64,...',
+      screenshotUrl: 'https://res.cloudinary.com/test/image/upload/v1/hacktober2026/payments/receipt_test.png',
       screenshotMime: 'image/png',
+      cloudinaryPublicId: 'hacktober2026/payments/receipt_test',
+      originalFilename: 'receipt_test.png',
+      fileSize: 1024,
+      uploadedAt: new Date().toISOString(),
     },
   });
 
   assert(testReg.registration.paymentStatus === 'PENDING', 'Initial payment status is PENDING');
+
+  // Assert security policy: repository strictly rejects saving raw base64 strings
+  let base64Blocked = false;
+  try {
+    await dbRepository.createRegistration({
+      registration: {
+        registrationId: generateRegistrationId(),
+        eventIds: ['cyber-quiz'],
+        type: 'INDIVIDUAL',
+        totalAmount: 79,
+        paymentStatus: 'PENDING',
+      },
+      primaryParticipant: {
+        fullName: 'Attacker Attempt',
+        email: 'attacker@example.com',
+        phone: '9876543210',
+        usn: '3GN23CS999',
+        college: 'GNDEC Bidar',
+        department: 'CSE',
+        yearSemester: '3rd Sem',
+      },
+      payment: {
+        amount: 79,
+        transactionId: 'UTR_RAW_BASE64',
+        screenshotUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+        screenshotMime: 'image/png',
+      },
+    });
+  } catch {
+    base64Blocked = true;
+  }
+  assert(base64Blocked, 'Database strictly blocks saving raw image binary/base64 to storage');
 
   // Admin verifies payment
   const verifyOk = await dbRepository.updatePaymentStatus(

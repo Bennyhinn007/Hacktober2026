@@ -30,57 +30,6 @@ export default function AdminAttendancePage() {
 
   const scannerRef = useRef<any>(null);
 
-  // Initialize camera scanner using html5-qrcode
-  useEffect(() => {
-    let html5QrCode: any = null;
-
-    if (scannerActive) {
-      import('html5-qrcode').then(({ Html5Qrcode }) => {
-        try {
-          html5QrCode = new Html5Qrcode('qr-reader');
-          scannerRef.current = html5QrCode;
-
-          html5QrCode
-            .start(
-              { facingMode: 'environment' },
-              { fps: 10, qrbox: { width: 250, height: 250 } },
-              (decodedText: string) => {
-                // Extracted QR payload (could be a full verify URL or direct token)
-                let token = decodedText;
-                if (decodedText.includes('token=')) {
-                  token = decodedText.split('token=')[1].split('&')[0];
-                }
-                setScannerActive(false);
-                handleLookup(token);
-              },
-              () => {
-                // ignore scanning frame misses
-              }
-            )
-            .catch((err: any) => {
-              console.warn('Camera scan start failed:', err);
-              setStatusAlert({
-                type: 'error',
-                message: 'Could not access camera. Please enter Registration ID manually.',
-              });
-              setScannerActive(false);
-            });
-        } catch (e) {
-          console.error(e);
-        }
-      });
-    }
-
-    return () => {
-      if (scannerRef.current) {
-        scannerRef.current
-          .stop()
-          .then(() => scannerRef.current.clear())
-          .catch(() => {});
-      }
-    };
-  }, [scannerActive]);
-
   const handleLookup = async (query: string) => {
     if (!query.trim()) return;
     setLoading(true);
@@ -129,12 +78,64 @@ export default function AdminAttendancePage() {
           setSelectedEventId(json.registration.eventIds[0]);
         }
       }
-    } catch (err: any) {
-      setStatusAlert({ type: 'error', message: err.message || 'Lookup failed' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Lookup failed';
+      setStatusAlert({ type: 'error', message: msg });
     } finally {
       setLoading(false);
     }
   };
+
+  // Initialize camera scanner using html5-qrcode
+  useEffect(() => {
+    let html5QrCode: any = null;
+
+    if (scannerActive) {
+      import('html5-qrcode').then(({ Html5Qrcode }) => {
+        try {
+          html5QrCode = new Html5Qrcode('qr-reader');
+          scannerRef.current = html5QrCode;
+
+          html5QrCode
+            .start(
+              { facingMode: 'environment' },
+              { fps: 10, qrbox: { width: 250, height: 250 } },
+              (decodedText: string) => {
+                // Extracted QR payload (could be a full verify URL or direct token)
+                let token = decodedText;
+                if (decodedText.includes('token=')) {
+                  token = decodedText.split('token=')[1].split('&')[0];
+                }
+                setScannerActive(false);
+                handleLookup(token);
+              },
+              () => {
+                // ignore scanning frame misses
+              }
+            )
+            .catch((err: unknown) => {
+              console.warn('Camera scan start failed:', err);
+              setStatusAlert({
+                type: 'error',
+                message: 'Could not access camera. Please enter Registration ID manually.',
+              });
+              setScannerActive(false);
+            });
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    }
+
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current
+          .stop()
+          .then(() => scannerRef.current.clear())
+          .catch(() => {});
+      }
+    };
+  }, [scannerActive]);
 
   const handleMarkPresent = async () => {
     if (!candidateData || !selectedEventId) return;

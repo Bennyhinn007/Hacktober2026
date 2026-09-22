@@ -27,16 +27,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
 
-  // If on login page, render without admin shell
-  if (pathname === '/admin/login') {
-    return <>{children}</>;
-  }
-
   const [admin, setAdmin] = useState<AdminPayload | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const isLoginPage = pathname === '/admin/login';
+
   useEffect(() => {
+    if (isLoginPage) {
+      setLoading(false);
+      return;
+    }
+
     async function checkAuth() {
       try {
         const res = await fetch('/api/auth/me');
@@ -80,6 +82,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: 'Audit Logs', href: '/admin/audit-logs', icon: ShieldAlert },
     { label: 'Settings', href: '/admin/settings', icon: Settings },
   ];
+
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (

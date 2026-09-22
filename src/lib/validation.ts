@@ -71,13 +71,20 @@ export const RegistrationWizardSchema = z.object({
     .trim()
     .min(6, 'Transaction ID / UTR must be at least 6 characters')
     .max(50, 'Transaction ID is too long'),
+  screenshotName: z.string().trim().max(150).optional(),
   screenshotData: z
     .string()
     .min(10, 'Payment screenshot proof is required')
-    .refine(
-      (val) => val.startsWith('data:image/') || val.startsWith('http'),
-      'Screenshot must be a valid image file (PNG, JPG, JPEG, WEBP)'
-    ),
+    .max(7_500_000, 'Screenshot file size exceeds 5MB limit')
+    .refine((val) => {
+      const allowedPrefixes = [
+        'data:image/png;base64,',
+        'data:image/jpeg;base64,',
+        'data:image/jpg;base64,',
+        'data:image/webp;base64,',
+      ];
+      return allowedPrefixes.some((prefix) => val.toLowerCase().startsWith(prefix));
+    }, 'Screenshot must be a valid image file (PNG, JPG, JPEG, WEBP)'),
 });
 
 export const AdminLoginSchema = z.object({

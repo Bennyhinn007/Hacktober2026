@@ -189,6 +189,7 @@ function RegisterWizard() {
         primaryParticipant: participant,
         transactionId: transactionId.trim(),
         screenshotData,
+        screenshotName: screenshotName || undefined,
       };
 
       const res = await fetch('/api/registrations', {

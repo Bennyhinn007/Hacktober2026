@@ -34,9 +34,13 @@ export interface IPayment {
   registrationId: string;
   amount: number;
   transactionId: string; // UTR
-  screenshotUrl: string; // base64 or stored URL
+  screenshotUrl: string; // Cloudinary secure CDN URL (never base64 binary)
   screenshotMime: string;
-  status: PaymentStatus;
+  cloudinaryPublicId?: string; // Cloudinary asset public ID
+  originalFilename?: string; // Original uploaded file name
+  fileSize?: number; // File size in bytes
+  uploadedAt?: string; // Upload timestamp
+  status: PaymentStatus; // PENDING | VERIFIED | REJECTED
   adminNote?: string;
   verifiedBy?: string;
   verifiedAt?: string;
