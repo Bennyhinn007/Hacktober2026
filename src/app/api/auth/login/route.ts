@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { dbRepository } from '@/lib/db/repository';
+import { dbRepository } from '@/lib/db/repository-selector';
 import { signAdminToken, COOKIE_NAME } from '@/lib/auth/jwt';
 import { AdminLoginSchema } from '@/lib/validation';
 import { authRateLimiter } from '@/lib/auth/rate-limiter';

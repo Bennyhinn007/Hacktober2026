@@ -7,7 +7,7 @@ import {
 } from '../src/lib/constants';
 import { generateRegistrationId, generateSafeToken, verifySafeToken } from '../src/lib/idGenerator';
 import { RegistrationWizardSchema } from '../src/lib/validation';
-import { dbRepository } from '../src/lib/db/repository';
+import { dbRepository } from '../src/lib/db/repository-selector';
 import { isAuthorizedRole } from '../src/lib/auth/jwt';
 import { authRateLimiter } from '../src/lib/auth/rate-limiter';
 import bcrypt from 'bcryptjs';

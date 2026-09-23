@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminSessionFromRequest, isAuthorizedRole } from '@/lib/auth/jwt';
-import { dbRepository } from '@/lib/db/repository';
+import { dbRepository } from '@/lib/db/repository-selector';
 
 export async function GET(req: NextRequest) {
   try {

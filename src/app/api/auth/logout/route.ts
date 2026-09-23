@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { COOKIE_NAME, getAdminSessionFromRequest } from '@/lib/auth/jwt';
-import { dbRepository } from '@/lib/db/repository';
+import { dbRepository } from '@/lib/db/repository-selector';
 
 export async function POST(req: NextRequest) {
   const session = await getAdminSessionFromRequest(req);

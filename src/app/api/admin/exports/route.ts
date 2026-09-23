@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 import { getAdminSessionFromRequest } from '@/lib/auth/jwt';
-import { dbRepository } from '@/lib/db/repository';
+import { dbRepository } from '@/lib/db/repository-selector';
 import { OFFICIAL_EVENTS } from '@/lib/constants';
 
 export async function GET(req: NextRequest) {

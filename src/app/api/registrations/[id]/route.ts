@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { dbRepository } from '@/lib/db/repository';
+import { dbRepository } from '@/lib/db/repository-selector';
 import { generateSafeToken } from '@/lib/idGenerator';
 
 export async function GET(

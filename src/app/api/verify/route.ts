@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { dbRepository } from '@/lib/db/repository';
+import { dbRepository } from '@/lib/db/repository-selector';
 import { verifySafeToken } from '@/lib/idGenerator';
 import { OFFICIAL_EVENTS } from '@/lib/constants';
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { RegistrationWizardSchema } from '@/lib/validation';
-import { dbRepository } from '@/lib/db/repository';
+import { dbRepository } from '@/lib/db/repository-selector';
 import { generateRegistrationId, generateSafeToken } from '@/lib/idGenerator';
 import { calculateRegistrationPrice } from '@/lib/constants';
 import { uploadPaymentScreenshot } from '@/lib/storage/cloudinary';
