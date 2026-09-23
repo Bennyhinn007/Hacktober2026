@@ -10,7 +10,7 @@
  * same function container.
  */
 
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { connectToDatabase } from './mongodb';
 import { INITIAL_PRICING_CONFIG, INITIAL_SCHEDULE, EVENT_INFO } from '../constants';
@@ -31,8 +31,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 // Registration
-interface IRegistrationDoc extends Document, Omit<IRegistration, 'id'> {}
-const RegistrationSchema = new Schema<IRegistrationDoc>(
+const RegistrationSchema = new Schema(
   {
     registrationId: { type: String, required: true, unique: true, index: true },
     eventIds: [{ type: String }],
@@ -52,8 +51,7 @@ const RegistrationSchema = new Schema<IRegistrationDoc>(
 );
 
 // Participant
-interface IParticipantDoc extends Document, Omit<IParticipant, 'id'> {}
-const ParticipantSchema = new Schema<IParticipantDoc>(
+const ParticipantSchema = new Schema(
   {
     registrationId: { type: String, required: true, index: true },
     isPrimary: { type: Boolean, default: false },
@@ -72,8 +70,7 @@ const ParticipantSchema = new Schema<IParticipantDoc>(
 );
 
 // Team
-interface ITeamDoc extends Document, Omit<ITeam, 'id'> {}
-const TeamSchema = new Schema<ITeamDoc>(
+const TeamSchema = new Schema(
   {
     registrationId: { type: String, required: true, index: true },
     eventId: { type: String, required: true },
@@ -86,8 +83,7 @@ const TeamSchema = new Schema<ITeamDoc>(
 );
 
 // Payment
-interface IPaymentDoc extends Document, Omit<IPayment, 'id'> {}
-const PaymentSchema = new Schema<IPaymentDoc>(
+const PaymentSchema = new Schema(
   {
     registrationId: { type: String, required: true, index: true },
     amount: { type: Number, required: true },
@@ -108,8 +104,7 @@ const PaymentSchema = new Schema<IPaymentDoc>(
 );
 
 // Attendance
-interface IAttendanceDoc extends Document, Omit<IAttendance, 'id'> {}
-const AttendanceSchema = new Schema<IAttendanceDoc>(
+const AttendanceSchema = new Schema(
   {
     registrationId: { type: String, required: true, index: true },
     participantId: { type: String, required: true },
@@ -122,8 +117,7 @@ const AttendanceSchema = new Schema<IAttendanceDoc>(
 );
 
 // Admin
-interface IAdminDoc extends Document, Omit<IAdmin, 'id'> {}
-const AdminSchema = new Schema<IAdminDoc>(
+const AdminSchema = new Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
@@ -137,8 +131,7 @@ const AdminSchema = new Schema<IAdminDoc>(
 );
 
 // Audit Log
-interface IAuditLogDoc extends Document, Omit<IAuditLog, 'id'> {}
-const AuditLogSchema = new Schema<IAuditLogDoc>(
+const AuditLogSchema = new Schema(
   {
     adminId: { type: String, required: true },
     adminEmail: { type: String, required: true },
@@ -153,12 +146,7 @@ const AuditLogSchema = new Schema<IAuditLogDoc>(
 );
 
 // Settings — one document per key
-interface ISettingDoc extends Document {
-  key: string;
-  value: unknown;
-  updatedAt: string;
-}
-const SettingSchema = new Schema<ISettingDoc>(
+const SettingSchema = new Schema(
   {
     key: { type: String, required: true, unique: true },
     value: { type: Schema.Types.Mixed, required: true },
@@ -170,18 +158,20 @@ const SettingSchema = new Schema<ISettingDoc>(
 // ---------------------------------------------------------------------------
 // Model helpers — safe for Next.js hot-reload (avoids OverwriteModelError)
 // ---------------------------------------------------------------------------
-function getModel<T extends Document>(name: string, schema: Schema): Model<T> {
-  return (mongoose.models[name] as Model<T>) || mongoose.model<T>(name, schema);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getModel(name: string, schema: Schema): Model<any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (mongoose.models[name] as Model<any>) || mongoose.model(name, schema);
 }
 
-function getRegistrationModel() { return getModel<IRegistrationDoc>('Registration', RegistrationSchema); }
-function getParticipantModel()  { return getModel<IParticipantDoc>('Participant', ParticipantSchema); }
-function getTeamModel()         { return getModel<ITeamDoc>('Team', TeamSchema); }
-function getPaymentModel()      { return getModel<IPaymentDoc>('Payment', PaymentSchema); }
-function getAttendanceModel()   { return getModel<IAttendanceDoc>('Attendance', AttendanceSchema); }
-function getAdminModel()        { return getModel<IAdminDoc>('Admin', AdminSchema); }
-function getAuditLogModel()     { return getModel<IAuditLogDoc>('AuditLog', AuditLogSchema); }
-function getSettingModel()      { return getModel<ISettingDoc>('Setting', SettingSchema); }
+function getRegistrationModel() { return getModel('Registration', RegistrationSchema); }
+function getParticipantModel()  { return getModel('Participant', ParticipantSchema); }
+function getTeamModel()         { return getModel('Team', TeamSchema); }
+function getPaymentModel()      { return getModel('Payment', PaymentSchema); }
+function getAttendanceModel()   { return getModel('Attendance', AttendanceSchema); }
+function getAdminModel()        { return getModel('Admin', AdminSchema); }
+function getAuditLogModel()     { return getModel('AuditLog', AuditLogSchema); }
+function getSettingModel()      { return getModel('Setting', SettingSchema); }
 
 // ---------------------------------------------------------------------------
 // Helper: lean doc → typed object with string id
@@ -537,12 +527,12 @@ export const mongoRepository = {
     return teams.map((t) => {
       const reg    = regMap.get(t.registrationId) ?? null;
       const leader = partById.get(t.leaderParticipantId) ?? null;
-      const members = t.memberParticipantIds.map((mid) => partById.get(mid)).filter(Boolean);
+      const members = ((t.memberParticipantIds ?? []) as string[]).map((mid: string) => partById.get(mid)).filter(Boolean);
       return {
         team:         lean2plain<ITeam>(t),
         registration: reg ? lean2plain<IRegistration>(reg) : null,
         leader:       leader ? lean2plain<IParticipant>(leader) : null,
-        members:      members.map(lean2plain<IParticipant>),
+        members:      members.map((m) => lean2plain<IParticipant>(m)),
         paymentStatus: (reg?.paymentStatus ?? 'PENDING') as PaymentStatus,
       };
     });
