@@ -141,7 +141,7 @@ export default function Footer({ initialEventInfo }: FooterProps = {}) {
               Designed &amp; Developed by
             </span>
             <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent hover:opacity-90 transition-opacity drop-shadow-xs">
-              Bennyhinn✨
+              Bennyhinn
             </span>
           </div>
         </div>
