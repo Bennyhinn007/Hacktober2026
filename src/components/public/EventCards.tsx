@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   BrainCircuit,
@@ -15,7 +15,7 @@ import {
   ArrowRight,
   Info,
 } from 'lucide-react';
-import { OFFICIAL_EVENTS, EventDefinition } from '@/lib/constants';
+import { OFFICIAL_EVENTS, EventDefinition, INITIAL_PRICING_CONFIG, PricingTierConfig } from '@/lib/constants';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   BrainCircuit: <BrainCircuit className="w-6 h-6 text-teal-600" />,
@@ -25,8 +25,36 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   Bug: <Bug className="w-6 h-6 text-rose-600" />,
 };
 
-export default function EventCards() {
+interface EventCardsProps {
+  initialPricing?: Record<number, PricingTierConfig>;
+}
+
+export default function EventCards({ initialPricing }: EventCardsProps = {}) {
+  const [pricing, setPricing] = useState<Record<number, PricingTierConfig>>(
+    initialPricing || INITIAL_PRICING_CONFIG
+  );
   const [selectedEvent, setSelectedEvent] = useState<EventDefinition | null>(null);
+
+  useEffect(() => {
+    async function refreshPricing() {
+      try {
+        const res = await fetch('/api/settings', { cache: 'no-store' });
+        const json = await res.json();
+        if (json.success && json.data?.pricing) {
+          setPricing(json.data.pricing);
+        }
+      } catch (e) {
+        // Fallback
+      }
+    }
+    refreshPricing();
+  }, []);
+
+  const p1 = pricing[1]?.price !== null && pricing[1]?.price !== undefined ? `₹${pricing[1].price}` : 'TBD';
+  const p2 = pricing[2]?.price !== null && pricing[2]?.price !== undefined ? `₹${pricing[2].price}` : 'TBD';
+  const p3 = pricing[3]?.price !== null && pricing[3]?.price !== undefined ? `₹${pricing[3].price}` : 'TBD';
+  const p4 = pricing[4]?.price !== null && pricing[4]?.price !== undefined ? `₹${pricing[4].price}` : 'TBD';
+  const p5 = pricing[5]?.price !== null && pricing[5]?.price !== undefined ? `₹${pricing[5].price}` : 'TBD';
 
   return (
     <section id="events" className="py-16 lg:py-24 bg-slate-50/80 border-b border-slate-200 relative bg-cyber-grid">
@@ -47,19 +75,19 @@ export default function EventCards() {
           <div className="mt-6 p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm font-semibold text-slate-700 cyber-corner">
             <span className="text-slate-500 font-medium">Official Pricing Tiers:</span>
             <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-900 border border-slate-200">
-              1 Event: <strong>₹79</strong>
+              1 Event: <strong>{p1}</strong>
             </span>
             <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-900 border border-slate-200">
-              2 Events: <strong>₹150</strong>
+              2 Events: <strong>{p2}</strong>
             </span>
             <span className="px-2.5 py-1 rounded-md bg-teal-50 text-teal-900 border border-teal-200">
-              3 Events: <strong>₹199</strong> (Popular)
+              3 Events: <strong>{p3}</strong> (Popular)
             </span>
             <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-900 border border-slate-200">
-              4 Events: <strong>₹300</strong>
+              4 Events: <strong>{p4}</strong>
             </span>
             <span className="px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-900 border border-indigo-200">
-              All 5 Events: <strong>₹350</strong> (Best Value)
+              All 5 Events: <strong>{p5}</strong> (Best Value)
             </span>
           </div>
         </div>

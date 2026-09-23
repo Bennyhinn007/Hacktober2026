@@ -1,13 +1,38 @@
 import Navbar from '@/components/public/Navbar';
 import Footer from '@/components/public/Footer';
 import EventCards from '@/components/public/EventCards';
+import { dbRepository } from '@/lib/db/repository-selector';
+import { EVENT_INFO, INITIAL_PRICING_CONFIG, PricingTierConfig } from '@/lib/constants';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata = {
   title: 'Events Catalog | Hacktober 2026 | GNDEC Bidar',
   description: 'Explore the 5 signature events of Hacktober 2026: Cybersecurity Quiz, Debate, Mini Hackathon, Cyber Hunt, and Technical Debugging.',
 };
 
-export default function EventsPage() {
+export default async function EventsPage() {
+  let eventInfo = EVENT_INFO;
+  let pricing = INITIAL_PRICING_CONFIG;
+
+  try {
+    const settings = await dbRepository.getSettings();
+    if (settings) {
+      if (settings.eventInfo && typeof settings.eventInfo === 'object') {
+        eventInfo = {
+          ...EVENT_INFO,
+          ...(settings.eventInfo as Record<string, any>),
+        };
+      }
+      if (settings.pricing && typeof settings.pricing === 'object') {
+        pricing = settings.pricing as Record<number, PricingTierConfig>;
+      }
+    }
+  } catch (err) {
+    console.error('[EventsPage] Failed to fetch settings:', err);
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
@@ -25,9 +50,10 @@ export default function EventsPage() {
             </p>
           </div>
         </div>
-        <EventCards />
+        <EventCards initialPricing={pricing} />
       </main>
-      <Footer />
+      <Footer initialEventInfo={eventInfo} />
     </div>
   );
 }
+

@@ -41,6 +41,7 @@ export interface IPayment {
   fileSize?: number; // File size in bytes
   uploadedAt?: string; // Upload timestamp
   status: PaymentStatus; // PENDING | VERIFIED | REJECTED
+  paidTo?: string; // Coordinator to whom payment was made (Swetha Mulge, Apeksha, Nandini)
   adminNote?: string;
   verifiedBy?: string;
   verifiedAt?: string;

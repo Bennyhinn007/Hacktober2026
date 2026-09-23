@@ -71,6 +71,7 @@ export const RegistrationWizardSchema = z.object({
     .trim()
     .min(6, 'Transaction ID / UTR must be at least 6 characters')
     .max(50, 'Transaction ID is too long'),
+  paidTo: z.string().trim().max(100).optional(),
   screenshotName: z.string().trim().max(150).optional(),
   screenshotData: z
     .string()

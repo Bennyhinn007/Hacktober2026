@@ -1,8 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Save, Loader2, CheckCircle2, QrCode, Mail, Phone, Sparkles } from 'lucide-react';
-import { EVENT_INFO } from '@/lib/constants';
+import Image from 'next/image';
+import {
+  Settings,
+  Save,
+  Loader2,
+  CheckCircle2,
+  QrCode,
+  Mail,
+  Phone,
+  Sparkles,
+  ExternalLink,
+} from 'lucide-react';
+import { EVENT_INFO, PAYMENT_ORGANIZERS } from '@/lib/constants';
 
 export default function AdminSettingsPage() {
   const [eventInfo, setEventInfo] = useState<any>(EVENT_INFO);
@@ -87,6 +98,87 @@ export default function AdminSettingsPage() {
 
       {/* Settings Form */}
       <form onSubmit={handleSave} className="space-y-6">
+        {/* Core Event Information & Dates */}
+        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 text-sm font-bold text-slate-900 pb-2 border-b border-slate-100">
+            <Settings className="w-4 h-4 text-teal-600" />
+            <span>Event Dates & General Information</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label className="font-bold text-slate-700 block mb-1">
+                Official Event Dates (Display)
+              </label>
+              <input
+                type="text"
+                value={eventInfo.dates || ''}
+                onChange={(e) => setEventInfo({ ...eventInfo, dates: e.target.value })}
+                placeholder="3 & 5 October 2026"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-slate-900"
+              />
+              <span className="text-[10px] text-slate-400 mt-0.5 block">
+                Shown across Hero, Schedule, Badges, and Footer.
+              </span>
+            </div>
+
+            <div>
+              <label className="font-bold text-slate-700 block mb-1">
+                Short Dates Format
+              </label>
+              <input
+                type="text"
+                value={eventInfo.datesShort || ''}
+                onChange={(e) => setEventInfo({ ...eventInfo, datesShort: e.target.value })}
+                placeholder="3 & 5 October 2026"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-slate-900"
+              />
+            </div>
+
+            <div>
+              <label className="font-bold text-slate-700 block mb-1">
+                Event Venue Location
+              </label>
+              <input
+                type="text"
+                value={eventInfo.venue || ''}
+                onChange={(e) => setEventInfo({ ...eventInfo, venue: e.target.value })}
+                placeholder="Department of CSE & Cyber Laboratories, GNDEC Bidar"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-slate-900"
+              />
+            </div>
+
+            <div>
+              <label className="font-bold text-slate-700 block mb-1">
+                Event Tagline / Slogan
+              </label>
+              <input
+                type="text"
+                value={eventInfo.tagline || ''}
+                onChange={(e) => setEventInfo({ ...eventInfo, tagline: e.target.value })}
+                placeholder="Think. Hack. Defend. Debug."
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-slate-900"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="font-bold text-slate-700 block mb-1">
+                Countdown Target ISO Timestamp (Start Date & Time)
+              </label>
+              <input
+                type="text"
+                value={eventInfo.startDate || ''}
+                onChange={(e) => setEventInfo({ ...eventInfo, startDate: e.target.value })}
+                placeholder="2026-10-03T09:00:00+05:30"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:ring-2 focus:ring-slate-900"
+              />
+              <span className="text-[10px] text-slate-400 mt-0.5 block">
+                Powers the live countdown timer on the Home page Hero banner.
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Payment Credentials Card */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
           <div className="flex items-center gap-2 text-sm font-bold text-slate-900 pb-2 border-b border-slate-100">
@@ -111,17 +203,45 @@ export default function AdminSettingsPage() {
               </span>
             </div>
 
-            <div>
-              <label className="font-bold text-slate-700 block mb-1">
-                Online Payment Gateway URL / Link
-              </label>
-              <input
-                type="text"
-                value={eventInfo.paymentLink || ''}
-                onChange={(e) => setEventInfo({ ...eventInfo, paymentLink: e.target.value })}
-                placeholder="[TBD] or https://pay.example.com"
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:ring-2 focus:ring-slate-900"
-              />
+            {/* Active Coordinator QR Codes Preview */}
+            <div className="pt-3 border-t border-slate-100">
+              <span className="font-bold text-slate-800 block mb-2 text-xs">
+                Active Student Coordinator Payment Gateways (3 Configured):
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {PAYMENT_ORGANIZERS.map((org, idx) => (
+                  <div
+                    key={org.id}
+                    className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center text-center space-y-2"
+                  >
+                    <span className="text-[10px] font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded">
+                      Coordinator {idx + 1}
+                    </span>
+                    <div className="relative w-28 h-28 rounded-lg overflow-hidden border border-slate-200 bg-white">
+                      <Image
+                        src={org.qrImage}
+                        alt={`${org.name} QR Preview`}
+                        fill
+                        sizes="112px"
+                        className="object-contain"
+                      />
+                    </div>
+                    <div>
+                      <strong className="text-slate-900 block text-xs">{org.name}</strong>
+                      <span className="font-mono text-[10px] text-slate-600 break-all">{org.upiId}</span>
+                    </div>
+                    <a
+                      href={org.qrImage}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] font-bold text-teal-700 hover:underline inline-flex items-center gap-1"
+                    >
+                      <span>Open Image</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -151,7 +271,7 @@ export default function AdminSettingsPage() {
                 type="text"
                 value={eventInfo.contactPhone || ''}
                 onChange={(e) => setEventInfo({ ...eventInfo, contactPhone: e.target.value })}
-                placeholder="[TBD] or +91 98765 43210"
+                placeholder="+91 7975449981"
                 className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-slate-900"
               />
             </div>

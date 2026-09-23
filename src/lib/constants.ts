@@ -191,22 +191,62 @@ export function calculateRegistrationPrice(
   };
 }
 
+export interface PaymentOrganizer {
+  id: string;
+  name: string;
+  upiId: string;
+  qrImage: string;
+  phone: string;
+  app: string;
+  note?: string;
+}
+
+export const PAYMENT_ORGANIZERS: PaymentOrganizer[] = [
+  {
+    id: 'swetha-mulge',
+    name: 'Swetha Mulge',
+    upiId: '7975449981@axl',
+    qrImage: '/qr/swetha-mulge.jpg',
+    phone: '7975449981',
+    app: 'PhonePe / Any UPI App',
+    note: 'Student Coordinator',
+  },
+  {
+    id: 'apeksha',
+    name: 'Apeksha',
+    upiId: '8618058871@axl',
+    qrImage: '/qr/apeksha.jpg',
+    phone: '8618058871',
+    app: 'PhonePe / Any UPI App',
+    note: 'Student Coordinator',
+  },
+  {
+    id: 'nandini',
+    name: 'Nandini',
+    upiId: '9353431169@ybl',
+    qrImage: '/qr/nandini.jpg',
+    phone: '9353431169',
+    app: 'PhonePe / Any UPI App',
+    note: 'Student Coordinator',
+  },
+];
+
 export const EVENT_INFO = {
   name: 'Hacktober 2026',
   tagline: 'Think. Hack. Defend. Debug.',
-  dates: '3 October 2026 to 5 October 2026',
-  datesShort: '3–5 October 2026',
+  dates: '3 & 5 October 2026',
+  datesShort: '3 & 5 October 2026',
   startDate: '2026-10-03T09:00:00+05:30',
   endDate: '2026-10-05T18:00:00+05:30',
   institution: 'Guru Nanak Dev Engineering College, Bidar',
   department: 'Department of CSE, IoT and Cybersecurity including Blockchain Technology',
   prizeNotice: 'Prizes will be announced as a surprise.',
-  venue: '[TBD]',
-  contactEmail: '[TBD]',
-  contactPhone: '[TBD]',
-  paymentUpiId: '[TBD]',
-  paymentLink: '[TBD]',
-  paymentQrImage: '/images/payment-qr-tbd.png',
+  venue: 'Department of CSE & Cyber Laboratories, GNDEC Bidar',
+  contactEmail: 'hacktober@gndec.ac.in',
+  contactPhone: '+91 7975449981 / +91 8618058871 / +91 9353431169',
+  paymentUpiId: '7975449981@axl (Swetha Mulge) / 8618058871@axl (Apeksha) / 9353431169@ybl (Nandini)',
+  paymentLink: 'upi://pay?pa=7975449981@axl&pn=Swetha%20Mulge&cu=INR&tn=Hacktober%202026%20Registration',
+  paymentQrImage: '/qr/swetha-mulge.jpg',
 };
 
 export const INITIAL_SCHEDULE = [
@@ -214,28 +254,20 @@ export const INITIAL_SCHEDULE = [
     day: 'Day 1',
     date: '3 October 2026',
     items: [
-      { event: 'Inauguration & Keynote Address', time: 'TBD', venue: 'TBD', type: 'GENERAL' },
-      { event: 'Cybersecurity Quiz (Prelims & Finals)', time: 'TBD', venue: 'TBD', type: 'EVENT' },
-      { event: 'Mini Hackathon (Problem Briefing & Kickoff)', time: 'TBD', venue: 'TBD', type: 'EVENT' },
+      { event: 'Inauguration & Keynote Address', time: '2:30 PM', venue: 'Main Auditorium, GNDEC Bidar', type: 'GENERAL' },
+      { event: 'Cybersecurity Quiz (Prelims & Finals)', time: 'TBD', venue: 'Seminar Hall', type: 'EVENT' },
+      { event: 'Mini Hackathon (Problem Briefing & Kickoff)', time: 'TBD', venue: 'CSE Computing Lab', type: 'EVENT' },
+      { event: 'Cyber Hunt (Phase 1 — Crypto & Forensics CTF)', time: 'TBD', venue: 'Campus & Cyber Lab', type: 'EVENT' },
     ],
   },
   {
     day: 'Day 2',
-    date: '4 October 2026',
-    items: [
-      { event: 'Mini Hackathon (Mentorship & Sprint Review)', time: 'TBD', venue: 'TBD', type: 'EVENT' },
-      { event: 'Cybersecurity Debate (Preliminary & Quarter-Finals)', time: 'TBD', venue: 'TBD', type: 'EVENT' },
-      { event: 'Cyber Hunt (Phase 1 — Crypto & Forensics CTF)', time: 'TBD', venue: 'TBD', type: 'EVENT' },
-    ],
-  },
-  {
-    day: 'Day 3',
     date: '5 October 2026',
     items: [
-      { event: 'Technical Debugging (Live Coding Gauntlet)', time: 'TBD', venue: 'TBD', type: 'EVENT' },
-      { event: 'Mini Hackathon (Final Project Presentations)', time: 'TBD', venue: 'TBD', type: 'EVENT' },
-      { event: 'Cybersecurity Debate (Grand Finals)', time: 'TBD', venue: 'TBD', type: 'EVENT' },
-      { event: 'Valedictory & Prize Distribution (Surprise Announcements)', time: 'TBD', venue: 'TBD', type: 'GENERAL' },
+      { event: 'Technical Debugging (Live Coding Gauntlet)', time: 'TBD', venue: 'IoT & Blockchain Lab', type: 'EVENT' },
+      { event: 'Mini Hackathon (Final Project Presentations & Judging)', time: 'TBD', venue: 'CSE Computing Lab', type: 'EVENT' },
+      { event: 'Cybersecurity Debate (Preliminary & Grand Finals)', time: 'TBD', venue: 'Seminar Hall', type: 'EVENT' },
+      { event: 'Valedictory & Prize Distribution (Surprise Announcements)', time: 'TBD', venue: 'Main Auditorium', type: 'GENERAL' },
     ],
   },
 ];

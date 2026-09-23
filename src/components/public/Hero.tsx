@@ -7,7 +7,12 @@ import { EVENT_INFO } from '@/lib/constants';
 
 import Image from 'next/image';
 
-export default function Hero() {
+interface HeroProps {
+  initialEventInfo?: typeof EVENT_INFO;
+}
+
+export default function Hero({ initialEventInfo }: HeroProps = {}) {
+  const [eventInfo, setEventInfo] = useState<typeof EVENT_INFO>(initialEventInfo || EVENT_INFO);
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -16,7 +21,23 @@ export default function Hero() {
   }>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const targetDate = new Date(EVENT_INFO.startDate).getTime();
+    // If not provided or to ensure freshest data on client navigation
+    async function refreshSettings() {
+      try {
+        const res = await fetch('/api/settings', { cache: 'no-store' });
+        const json = await res.json();
+        if (json.success && json.data?.eventInfo) {
+          setEventInfo((prev) => ({ ...prev, ...json.data.eventInfo }));
+        }
+      } catch (e) {
+        // Fallback to initial/constant
+      }
+    }
+    refreshSettings();
+  }, []);
+
+  useEffect(() => {
+    const targetDate = new Date(eventInfo.startDate || '2026-10-03T09:00:00+05:30').getTime();
 
     const updateCountdown = () => {
       const now = new Date().getTime();
@@ -37,7 +58,7 @@ export default function Hero() {
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [eventInfo.startDate]);
 
   return (
     <section className="relative overflow-hidden bg-white border-b border-slate-200 py-12 lg:py-20 bg-grid-pattern">
@@ -78,7 +99,7 @@ export default function Hero() {
 
           {/* Department */}
           <p className="text-xs sm:text-sm font-semibold text-slate-600 tracking-wider uppercase max-w-2xl mx-auto">
-            {EVENT_INFO.department}
+            {eventInfo.department}
           </p>
 
           {/* Master Title in Mokoto Font & Tagline */}
@@ -87,7 +108,7 @@ export default function Hero() {
               HACKTOBER <span className="text-teal-600">2026</span>
             </h1>
             <p className="text-lg sm:text-xl font-bold tracking-tight text-slate-700 max-w-2xl mx-auto">
-              {EVENT_INFO.tagline}
+              {eventInfo.tagline}
             </p>
           </div>
 
@@ -95,15 +116,15 @@ export default function Hero() {
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-medium text-slate-700 pt-2">
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 shadow-xs">
               <Calendar className="w-4 h-4 text-teal-600" />
-              <span>{EVENT_INFO.dates}</span>
+              <span>{eventInfo.dates}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 shadow-xs">
               <MapPin className="w-4 h-4 text-teal-600" />
-              <span>GNDEC Campus, Bidar</span>
+              <span>{eventInfo.venue || 'GNDEC Campus, Bidar'}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 shadow-xs">
               <Sparkles className="w-4 h-4 text-amber-600" />
-              <span>{EVENT_INFO.prizeNotice}</span>
+              <span>{eventInfo.prizeNotice}</span>
             </div>
           </div>
 

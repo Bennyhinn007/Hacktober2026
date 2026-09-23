@@ -16,7 +16,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: errorMsg }, { status: 400 });
     }
 
-    const { selectedEventIds, primaryParticipant, teamName, transactionId, screenshotData, screenshotName } = parsed.data;
+    const {
+      selectedEventIds,
+      primaryParticipant,
+      teamName,
+      transactionId,
+      paidTo,
+      screenshotData,
+      screenshotName,
+    } = parsed.data;
 
     // Calculate dynamic pricing from repository settings
     const settings = await dbRepository.getSettings();
@@ -87,6 +95,8 @@ export async function POST(req: NextRequest) {
         fileSize: uploadedScreenshot.fileSize,
         uploadedAt: uploadedScreenshot.uploadedAt,
         status: 'PENDING',
+        paidTo: paidTo || undefined,
+        adminNote: paidTo ? `Paid to Coordinator: ${paidTo}` : undefined,
       },
     });
 

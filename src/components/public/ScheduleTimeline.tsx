@@ -1,12 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, AlertCircle } from 'lucide-react';
-import { INITIAL_SCHEDULE } from '@/lib/constants';
+import { INITIAL_SCHEDULE, EVENT_INFO } from '@/lib/constants';
 
-export default function ScheduleTimeline() {
+interface ScheduleTimelineProps {
+  initialSchedule?: typeof INITIAL_SCHEDULE;
+  initialEventInfo?: typeof EVENT_INFO;
+}
+
+export default function ScheduleTimeline({
+  initialSchedule,
+  initialEventInfo,
+}: ScheduleTimelineProps = {}) {
+  const [schedule, setSchedule] = useState(initialSchedule || INITIAL_SCHEDULE);
+  const [eventInfo, setEventInfo] = useState(initialEventInfo || EVENT_INFO);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
-  const currentDay = INITIAL_SCHEDULE[activeDayIndex];
+
+  useEffect(() => {
+    async function refreshSettings() {
+      try {
+        const res = await fetch('/api/settings', { cache: 'no-store' });
+        const json = await res.json();
+        if (json.success) {
+          if (json.data?.schedule && Array.isArray(json.data.schedule)) {
+            setSchedule(json.data.schedule);
+          }
+          if (json.data?.eventInfo) {
+            setEventInfo((prev) => ({ ...prev, ...json.data.eventInfo }));
+          }
+        }
+      } catch (e) {
+        // Fallback to initial
+      }
+    }
+    refreshSettings();
+  }, []);
+
+  const safeIndex = Math.min(activeDayIndex, Math.max(0, schedule.length - 1));
+  const currentDay = schedule[safeIndex] || {
+    day: 'Day 1',
+    date: eventInfo.dates || '3 October 2026',
+    items: [],
+  };
 
   return (
     <section id="schedule" className="py-16 lg:py-24 bg-white border-b border-slate-200">
@@ -14,42 +50,46 @@ export default function ScheduleTimeline() {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold uppercase tracking-wider mb-3">
-            <span>3-Day Program</span>
+            <span>{schedule.length}-Day Program</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
             Event Schedule & Itinerary
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Hacktober 2026 runs across three intensive days (3–5 October 2026).
+            Hacktober 2026 runs on <strong>{eventInfo.dates || '3 & 5 October 2026'}</strong>.
           </p>
 
           <div className="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium">
             <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>Exact session timings and venues are currently TBD and will be finalized prior to the event.</span>
+            <span>Exact session timings and venues are updated live by the organizing committee.</span>
           </div>
         </div>
 
         {/* Day Switcher Tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200 shadow-xs">
-            {INITIAL_SCHEDULE.map((day, idx) => (
-              <button
-                key={day.day}
-                onClick={() => setActiveDayIndex(idx)}
-                className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                  activeDayIndex === idx
-                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <span>{day.day}</span>
-                <span className="ml-2 text-xs font-normal text-slate-500 hidden sm:inline">
-                  ({day.date})
-                </span>
-              </button>
-            ))}
+        {schedule.length > 0 && (
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200 shadow-xs flex-wrap justify-center gap-1">
+              {schedule.map((day, idx) => (
+                <button
+                  key={day.day || idx}
+                  onClick={() => setActiveDayIndex(idx)}
+                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                    safeIndex === idx
+                      ? 'bg-white text-slate-900 shadow-sm border border-slate-200'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <span>{day.day}</span>
+                  {day.date && (
+                    <span className="ml-2 text-xs font-normal text-slate-500 hidden sm:inline">
+                      ({day.date})
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Day Timeline List */}
         <div className="max-w-3xl mx-auto space-y-4">
@@ -64,38 +104,44 @@ export default function ScheduleTimeline() {
           </div>
 
           <div className="space-y-3">
-            {currentDay.items.map((item, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs card-hover flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-[11px] font-bold px-2 py-0.5 rounded ${
-                        item.type === 'EVENT'
-                          ? 'bg-teal-50 text-teal-800 border border-teal-200'
-                          : 'bg-slate-100 text-slate-700 border border-slate-200'
-                      }`}
-                    >
-                      {item.type}
-                    </span>
-                    <h3 className="text-base font-bold text-slate-900">{item.event}</h3>
+            {currentDay.items && currentDay.items.length > 0 ? (
+              currentDay.items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs card-hover flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                          item.type === 'EVENT'
+                            ? 'bg-teal-50 text-teal-800 border border-teal-200'
+                            : 'bg-slate-100 text-slate-700 border border-slate-200'
+                        }`}
+                      >
+                        {item.type}
+                      </span>
+                      <h3 className="text-base font-bold text-slate-900">{item.event}</h3>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-4 text-xs text-slate-500 shrink-0">
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-slate-400" />
-                    <span>Time: <strong className="text-slate-700">{item.time}</strong></span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-slate-400" />
-                    <span>Venue: <strong className="text-slate-700">{item.venue}</strong></span>
+                  <div className="flex items-center gap-4 text-xs text-slate-500 shrink-0">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-slate-400" />
+                      <span>Time: <strong className="text-slate-700">{item.time}</strong></span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4 text-slate-400" />
+                      <span>Venue: <strong className="text-slate-700">{item.venue}</strong></span>
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="p-8 text-center text-slate-500 text-sm bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                No sessions scheduled for this day yet.
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

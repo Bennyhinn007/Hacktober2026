@@ -1,13 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, HelpCircle, Mail, MapPin, Phone } from 'lucide-react';
-import { EVENT_INFO } from '@/lib/constants';
+import { ChevronDown, HelpCircle, Mail, MapPin, Phone, QrCode } from 'lucide-react';
+import { EVENT_INFO, PAYMENT_ORGANIZERS } from '@/lib/constants';
 
 const FAQ_ITEMS = [
   {
     q: 'How does the dynamic pricing tier work?',
     a: 'Registration fees are tiered based on the total number of events you select: 1 Event costs ₹79, 2 Events cost ₹150, 3 Events cost ₹199, 4 Events cost ₹300, and all 5 Events cost ₹350.',
+  },
+  {
+    q: 'Which UPI IDs and payment QR codes should I use to pay?',
+    a: 'You can transfer the registration fee to any of our 3 official student coordinators via PhonePe, Google Pay, Paytm, or BHIM UPI: Swetha Mulge (7975449981@axl), Apeksha (8618058871@axl), or Nandini (9353431169@ybl). All 3 QR codes are available directly on the registration portal.',
   },
   {
     q: 'How does registration work for team competitions like Mini Hackathon and Cyber Hunt?',
@@ -22,7 +26,7 @@ const FAQ_ITEMS = [
     a: 'You will receive a unique Registration ID (format: HT26-XXXXXX) along with a verification QR pass. Your payment status will be marked as PENDING. Once the organizing committee verifies your transaction UTR against bank records, your status will update to VERIFIED.',
   },
   {
-    q: 'What should I bring on event day (3 October 2026)?',
+    q: 'What should I bring on event days (3 & 5 October 2026)?',
     a: 'All participants must bring their original College Student ID card and their digital or printed Hacktober 2026 Confirmation Pass containing their QR code for event check-in.',
   },
   {
@@ -31,7 +35,12 @@ const FAQ_ITEMS = [
   },
 ];
 
-export default function FaqSection() {
+interface FaqSectionProps {
+  initialEventInfo?: typeof EVENT_INFO;
+}
+
+export default function FaqSection({ initialEventInfo }: FaqSectionProps = {}) {
+  const [eventInfo] = useState(initialEventInfo || EVENT_INFO);
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
@@ -105,7 +114,7 @@ export default function FaqSection() {
                   <Mail className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-slate-900 block">Official Support Email</span>
-                    <p className="text-slate-600 font-mono">{EVENT_INFO.contactEmail}</p>
+                    <p className="text-slate-600 font-mono">{eventInfo.contactEmail}</p>
                   </div>
                 </div>
 
@@ -113,13 +122,39 @@ export default function FaqSection() {
                   <Phone className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-slate-900 block">Organizer Helpline</span>
-                    <p className="text-slate-600 font-mono">{EVENT_INFO.contactPhone}</p>
+                    <p className="text-slate-600 font-mono">{eventInfo.contactPhone}</p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200">
+                  <span className="font-bold text-slate-900 block mb-2 text-xs uppercase tracking-wider">
+                    Student Coordinators (Payment & Queries)
+                  </span>
+                  <div className="space-y-2">
+                    {PAYMENT_ORGANIZERS.map((org) => (
+                      <div
+                        key={org.id}
+                        className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 text-xs shadow-2xs"
+                      >
+                        <div>
+                          <strong className="text-slate-900 block">{org.name}</strong>
+                          <span className="font-mono text-[11px] text-slate-500">{org.upiId}</span>
+                        </div>
+                        <a
+                          href={`tel:+91${org.phone}`}
+                          className="font-mono font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200/60"
+                        >
+                          <Phone className="w-3 h-3" />
+                          <span>+91 {org.phone}</span>
+                        </a>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
 
               <div className="pt-4 border-t border-slate-200 text-xs text-slate-500">
-                <span>Faculty Coordinators: <strong className="text-slate-800">[TBD]</strong></span>
+                <span>Faculty Coordinators: <strong className="text-slate-800">Prof. Arti</strong></span>
                 <p className="mt-1">
                   For immediate assistance during registration, visit the Department office during college hours.
                 </p>

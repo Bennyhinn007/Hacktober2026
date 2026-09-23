@@ -3,7 +3,12 @@ import Image from 'next/image';
 import { Shield, MapPin, Calendar, Mail, Phone, Lock, ExternalLink } from 'lucide-react';
 import { EVENT_INFO } from '@/lib/constants';
 
-export default function Footer() {
+interface FooterProps {
+  initialEventInfo?: typeof EVENT_INFO;
+}
+
+export default function Footer({ initialEventInfo }: FooterProps = {}) {
+  const eventInfo = initialEventInfo || EVENT_INFO;
   return (
     <footer className="bg-slate-50 border-t border-slate-200 mt-auto text-slate-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -32,18 +37,18 @@ export default function Footer() {
 
             <p className="text-sm text-slate-600 leading-relaxed max-w-md">
               Organized by the{' '}
-              <strong className="text-slate-900 font-semibold">{EVENT_INFO.department}</strong> at{' '}
-              <strong className="text-slate-900 font-semibold">{EVENT_INFO.institution}</strong>.
+              <strong className="text-slate-900 font-semibold">{eventInfo.department}</strong> at{' '}
+              <strong className="text-slate-900 font-semibold">{eventInfo.institution}</strong>.
             </p>
 
             <div className="space-y-2 pt-2 text-xs text-slate-500">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-teal-600 shrink-0" />
-                <span>{EVENT_INFO.dates}</span>
+                <span>{eventInfo.dates}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-teal-600 shrink-0" />
-                <span>Guru Nanak Dev Engineering College, Mailoor Road, Bidar, Karnataka</span>
+                <span>{eventInfo.venue || 'Guru Nanak Dev Engineering College, Mailoor Road, Bidar, Karnataka'}</span>
               </div>
             </div>
           </div>
@@ -90,11 +95,11 @@ export default function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li className="flex items-center gap-2 text-slate-600">
                 <Mail className="w-4 h-4 text-slate-400" />
-                <span>Email: {EVENT_INFO.contactEmail}</span>
+                <span>Email: {eventInfo.contactEmail}</span>
               </li>
               <li className="flex items-center gap-2 text-slate-600">
                 <Phone className="w-4 h-4 text-slate-400" />
-                <span>Helpline: {EVENT_INFO.contactPhone}</span>
+                <span>Helpline: {eventInfo.contactPhone}</span>
               </li>
               <li>
                 <Link href="/#faq" className="hover:text-teal-700 transition-colors">
@@ -127,14 +132,17 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>
-            &copy; {new Date().getFullYear()} {EVENT_INFO.institution}. All rights reserved.
+        <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-center md:text-left text-xs text-slate-500 max-w-md">
+            &copy; 2026 CSE(IoT &amp; Cybersecurity Including Blockchain Technology). All Rights Reserved.
           </p>
-          <div className="flex items-center gap-6">
-            <span>Official Event Portal</span>
-            <span>•</span>
-            <span className="font-mono text-slate-400">Ver 2.6.0 (Production)</span>
+          <div className="flex flex-col items-center md:items-end text-center md:text-right">
+            <span className="text-[11px] uppercase tracking-widest font-semibold text-slate-600">
+              Designed &amp; Developed by
+            </span>
+            <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent hover:opacity-90 transition-opacity drop-shadow-xs">
+              Bennyhinn✨
+            </span>
           </div>
         </div>
       </div>
