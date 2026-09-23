@@ -132,18 +132,16 @@ export default function Footer({ initialEventInfo }: FooterProps = {}) {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-center md:text-left text-xs text-slate-500 max-w-md">
+        <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p className="text-center sm:text-left">
             &copy; 2026 CSE(IoT &amp; Cybersecurity Including Blockchain Technology). All Rights Reserved.
           </p>
-          <div className="flex flex-col items-center md:items-end text-center md:text-right">
-            <span className="text-[11px] uppercase tracking-widest font-semibold text-slate-600">
-              Designed &amp; Developed by
-            </span>
-            <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent hover:opacity-90 transition-opacity drop-shadow-xs">
+          <p className="text-center sm:text-right text-slate-500">
+            <span>Designed &amp; Developed by </span>
+            <span className="font-semibold text-slate-700 hover:text-slate-900 transition-colors">
               Bennyhinn
             </span>
-          </div>
+          </p>
         </div>
       </div>
     </footer>
